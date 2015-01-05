@@ -30,8 +30,8 @@ int main(int argc, char** argv)
 		{
 			// Get frame source
 			cout << "Try to get depth source" << endl;
-			IDepthFrameSource* pDepthFrameSource = nullptr;
-			if (pSensor->get_DepthFrameSource(&pDepthFrameSource) != S_OK)
+			IDepthFrameSource* pFrameSource = nullptr;
+			if (pSensor->get_DepthFrameSource(&pFrameSource) != S_OK)
 			{
 				cerr << "Can't get depth frame source" << endl;
 			}
@@ -39,7 +39,7 @@ int main(int argc, char** argv)
 			{
 				// get frame reader
 				IDepthFrameReader* pDepthFrameReader = nullptr;
-				if (pDepthFrameSource->OpenReader(&pDepthFrameReader) != S_OK)
+				if (pFrameSource->OpenReader(&pDepthFrameReader) != S_OK)
 				{
 					cerr << "Can't get depth frame reader" << endl;
 				}
@@ -78,8 +78,8 @@ int main(int argc, char** argv)
 				}
 
 				// release Frame source
-				pDepthFrameSource->Release();
-				pDepthFrameSource = nullptr;
+				pFrameSource->Release();
+				pFrameSource = nullptr;
 			}
 
 			// Close Sensor
