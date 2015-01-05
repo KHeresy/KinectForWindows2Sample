@@ -15,7 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source.cpp">
+    <ClCompile Include="SimpleDepthReader.cpp">
       <Filter>原始程式檔</Filter>
     </ClCompile>
   </ItemGroup>
