@@ -26,23 +26,25 @@ int main(int argc, char** argv)
 		else
 		{
 			// 2a. Get frame source
-			cout << "Try to get depth source" << endl;
+			cout << "Try to get source" << endl;
 			IDepthFrameSource* pFrameSource = nullptr;
 			if (pSensor->get_DepthFrameSource(&pFrameSource) != S_OK)
 			{
-				cerr << "Can't get depth frame source" << endl;
+				cerr << "Can't get frame source" << endl;
 			}
 			else
 			{
 				// 3a. get frame reader
+				cout << "Try to get frame reader" << endl;
 				IDepthFrameReader* pFrameReader = nullptr;
 				if (pFrameSource->OpenReader(&pFrameReader) != S_OK)
 				{
-					cerr << "Can't get depth frame reader" << endl;
+					cerr << "Can't get frame reader" << endl;
 				}
 				else
 				{
 					// Enter main loop
+					cout << "Enter main loop" << endl;
 					size_t uFrameCount = 0;
 					while (uFrameCount < 100)
 					{
@@ -54,14 +56,18 @@ int main(int argc, char** argv)
 							int		iWidth = 0;
 							int		iHeight = 0;
 							IFrameDescription* pFrameDescription = nullptr;
-							pFrame->get_FrameDescription(&pFrameDescription);
-							pFrameDescription->get_Width(&iWidth);
-							pFrameDescription->get_Height(&iHeight);
+							if (pFrame->get_FrameDescription(&pFrameDescription) == S_OK)
+							{
+								pFrameDescription->get_Width(&iWidth);
+								pFrameDescription->get_Height(&iHeight);
+								pFrameDescription->Release();
+								pFrameDescription = nullptr;
+							}
 
 							// 4c. Get image buffer
-							UINT	iBufferSize = 0;
+							UINT	uBufferSize = 0;
 							UINT16*	pBuffer = nullptr;
-							pFrame->AccessUnderlyingBuffer(&iBufferSize, &pBuffer);
+							pFrame->AccessUnderlyingBuffer(&uBufferSize, &pBuffer);
 
 							// 4d. Output depth value
 							int x = iWidth / 2,
@@ -71,25 +77,31 @@ int main(int argc, char** argv)
 
 							// 4e. release frame
 							pFrame->Release();
+							pFrame = nullptr;
+
 							++uFrameCount;
 						}
 					}
 
 					// 3b. release frame reader
+					cout << "Release frame reader" << endl;
 					pFrameReader->Release();
 					pFrameReader = nullptr;
 				}
 
 				// 2b. release Frame source
+				cout << "Release frame source" << endl;
 				pFrameSource->Release();
 				pFrameSource = nullptr;
 			}
 
 			// 1c. Close Sensor
+			cout << "close sensor" << endl;
 			pSensor->Close();
 		}
 
 		// 1d. Release Sensor
+		cout << "Release sensor" << endl;
 		pSensor->Release();
 		pSensor = nullptr;
 	}
