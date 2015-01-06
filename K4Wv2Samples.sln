@@ -5,6 +5,8 @@ VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "01_SimpleDepthReader", "01_SimpleDepthReader\SimpleDepthReader.vcxproj", "{B203E478-2467-416B-B850-9913ABC69AA4}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "02_DepthWithOpenCV", "02_DepthWithOpenCV\02_DepthWithOpenCV.vcxproj", "{3270836E-88CC-45FC-ACB2-4410FB65D534}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -15,6 +17,10 @@ Global
 		{B203E478-2467-416B-B850-9913ABC69AA4}.Debug|Win32.Build.0 = Debug|Win32
 		{B203E478-2467-416B-B850-9913ABC69AA4}.Release|Win32.ActiveCfg = Release|Win32
 		{B203E478-2467-416B-B850-9913ABC69AA4}.Release|Win32.Build.0 = Release|Win32
+		{3270836E-88CC-45FC-ACB2-4410FB65D534}.Debug|Win32.ActiveCfg = Debug|Win32
+		{3270836E-88CC-45FC-ACB2-4410FB65D534}.Debug|Win32.Build.0 = Debug|Win32
+		{3270836E-88CC-45FC-ACB2-4410FB65D534}.Release|Win32.ActiveCfg = Release|Win32
+		{3270836E-88CC-45FC-ACB2-4410FB65D534}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

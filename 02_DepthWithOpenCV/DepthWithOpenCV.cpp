@@ -1,6 +1,10 @@
 // Standard Library
 #include <iostream>
 
+// OpenCV Header
+#include <opencv2/core.hpp>
+#include <opencv2/highgui.hpp>
+
 // Kinect for Windows SDK Header
 #include <Kinect.h>
 
@@ -43,12 +47,11 @@ int main(int argc, char** argv)
 				else
 				{
 					// Enter main loop
-					size_t uFrameCount = 0;
-					while (uFrameCount < 100)
+					while (true)
 					{
 						// 4a. Get last frame
 						IDepthFrame* pFrame = nullptr;
-						if( pFrameReader->AcquireLatestFrame(&pFrame) == S_OK )
+						if (pFrameReader->AcquireLatestFrame(&pFrame) == S_OK)
 						{
 							// 4b. Get frame description
 							int		iWidth = 0;
@@ -63,15 +66,19 @@ int main(int argc, char** argv)
 							UINT16*	pBuffer = nullptr;
 							pFrame->AccessUnderlyingBuffer(&iBufferSize, &pBuffer);
 
-							// 4d. Output depth value
-							int x = iWidth / 2,
-								y = iHeight / 2;
-							size_t idx = x + iWidth * y;
-							std::cout << pBuffer[idx] << std::endl;
+							// 4d. convert to OpenCV form
+							const cv::Mat mRawDepthImg(iHeight, iWidth, CV_16UC1, pBuffer );
+							cv::Mat mImg;
+							mRawDepthImg.convertTo(mImg, CV_8U, 255.0f / 8000.0f);
+							cv::imshow( "Depth Map", mImg);
 
 							// 4e. release frame
 							pFrame->Release();
-							++uFrameCount;
+						}
+
+						// 4f. check keyboard input
+						if (cv::waitKey(30) == VK_ESCAPE){
+							break;
 						}
 					}
 
