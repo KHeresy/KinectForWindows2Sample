@@ -7,6 +7,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "01_SimpleDepthReader", "01_
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "02_DepthWithOpenCV", "02_DepthWithOpenCV\DepthWithOpenCV.vcxproj", "{3270836E-88CC-45FC-ACB2-4410FB65D534}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "03_ColorWithOpenCV", "03_ColorWithOpenCV\ColorWithOpenCV.vcxproj", "{FE1232D3-CF0C-49EB-B389-F176D8BFF849}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -21,6 +23,10 @@ Global
 		{3270836E-88CC-45FC-ACB2-4410FB65D534}.Debug|Win32.Build.0 = Debug|Win32
 		{3270836E-88CC-45FC-ACB2-4410FB65D534}.Release|Win32.ActiveCfg = Release|Win32
 		{3270836E-88CC-45FC-ACB2-4410FB65D534}.Release|Win32.Build.0 = Release|Win32
+		{FE1232D3-CF0C-49EB-B389-F176D8BFF849}.Debug|Win32.ActiveCfg = Debug|Win32
+		{FE1232D3-CF0C-49EB-B389-F176D8BFF849}.Debug|Win32.Build.0 = Debug|Win32
+		{FE1232D3-CF0C-49EB-B389-F176D8BFF849}.Release|Win32.ActiveCfg = Release|Win32
+		{FE1232D3-CF0C-49EB-B389-F176D8BFF849}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
