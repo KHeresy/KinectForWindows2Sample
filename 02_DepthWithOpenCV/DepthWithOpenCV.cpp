@@ -30,47 +30,54 @@ int main(int argc, char** argv)
 		else
 		{
 			// 2a. Get frame source
-			cout << "Try to get depth source" << endl;
+			cout << "Try to get source" << endl;
 			IDepthFrameSource* pFrameSource = nullptr;
 			if (pSensor->get_DepthFrameSource(&pFrameSource) != S_OK)
 			{
-				cerr << "Can't get depth frame source" << endl;
+				cerr << "Can't get frame source" << endl;
 			}
 			else
 			{
+				// 2b. Get frame description
+				int		iWidth = 0;
+				int		iHeight = 0;
+				IFrameDescription* pFrameDescription = nullptr;
+				if (pFrameSource->get_FrameDescription(&pFrameDescription) == S_OK)
+				{
+					pFrameDescription->get_Width(&iWidth);
+					pFrameDescription->get_Height(&iHeight);
+					pFrameDescription->Release();
+					pFrameDescription = nullptr;
+				}
+
+				// perpare OpenCV
+				cv::Mat mDepthImg(iHeight, iWidth, CV_16UC1);
+				cv::Mat mImg8bit(iHeight, iWidth, CV_8UC1);
+				cv::namedWindow( "Depth Map" );
+
 				// 3a. get frame reader
+				cout << "Try to get frame reader" << endl;
 				IDepthFrameReader* pFrameReader = nullptr;
 				if (pFrameSource->OpenReader(&pFrameReader) != S_OK)
 				{
-					cerr << "Can't get depth frame reader" << endl;
+					cerr << "Can't get frame reader" << endl;
 				}
 				else
 				{
 					// Enter main loop
+					cout << "Enter main loop" << endl;
 					while (true)
 					{
 						// 4a. Get last frame
 						IDepthFrame* pFrame = nullptr;
 						if (pFrameReader->AcquireLatestFrame(&pFrame) == S_OK)
 						{
-							// 4b. Get frame description
-							int		iWidth = 0;
-							int		iHeight = 0;
-							IFrameDescription* pFrameDescription = nullptr;
-							pFrame->get_FrameDescription(&pFrameDescription);
-							pFrameDescription->get_Width(&iWidth);
-							pFrameDescription->get_Height(&iHeight);
+							// 4c. copy the depth map to image
+							auto res = pFrame->CopyFrameDataToArray(iWidth * iHeight, reinterpret_cast<UINT16*>(mDepthImg.data));
 
-							// 4c. Get image buffer
-							UINT	iBufferSize = 0;
-							UINT16*	pBuffer = nullptr;
-							pFrame->AccessUnderlyingBuffer(&iBufferSize, &pBuffer);
-
-							// 4d. convert to OpenCV form
-							const cv::Mat mRawDepthImg(iHeight, iWidth, CV_16UC1, pBuffer );
-							cv::Mat mImg;
-							mRawDepthImg.convertTo(mImg, CV_8U, 255.0f / 8000.0f);
-							cv::imshow( "Depth Map", mImg);
+							// 4d. convert from 16bit to 8bit
+							mDepthImg.convertTo(mImg8bit, CV_8U, 255.0f / 8000.0f);
+							cv::imshow("Depth Map", mImg8bit);
 
 							// 4e. release frame
 							pFrame->Release();
@@ -83,20 +90,24 @@ int main(int argc, char** argv)
 					}
 
 					// 3b. release frame reader
+					cout << "Release frame reader" << endl;
 					pFrameReader->Release();
 					pFrameReader = nullptr;
 				}
 
-				// 2b. release Frame source
+				// 2c. release Frame source
+				cout << "Release frame source" << endl;
 				pFrameSource->Release();
 				pFrameSource = nullptr;
 			}
 
 			// 1c. Close Sensor
+			cout << "close sensor" << endl;
 			pSensor->Close();
 		}
 
 		// 1d. Release Sensor
+		cout << "Release sensor" << endl;
 		pSensor->Release();
 		pSensor = nullptr;
 	}
