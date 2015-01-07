@@ -50,6 +50,12 @@ int main(int argc, char** argv)
 					pFrameDescription = nullptr;
 				}
 
+				// 2c. get some dpeth only meta
+				UINT16 uDepthMin = 0, uDepthMax = 0;
+				pFrameSource->get_DepthMinReliableDistance(&uDepthMin);
+				pFrameSource->get_DepthMaxReliableDistance(&uDepthMax);
+				cout << "Reliable Distance: " << uDepthMin << " - " << uDepthMax << endl;
+
 				// perpare OpenCV
 				cv::Mat mDepthImg(iHeight, iWidth, CV_16UC1);
 				cv::Mat mImg8bit(iHeight, iWidth, CV_8UC1);
@@ -76,7 +82,7 @@ int main(int argc, char** argv)
 							auto res = pFrame->CopyFrameDataToArray(iWidth * iHeight, reinterpret_cast<UINT16*>(mDepthImg.data));
 
 							// 4d. convert from 16bit to 8bit
-							mDepthImg.convertTo(mImg8bit, CV_8U, 255.0f / 8000.0f);
+							mDepthImg.convertTo(mImg8bit, CV_8U, 255.0f / uDepthMax );
 							cv::imshow("Depth Map", mImg8bit);
 
 							// 4e. release frame
@@ -95,7 +101,7 @@ int main(int argc, char** argv)
 					pFrameReader = nullptr;
 				}
 
-				// 2c. release Frame source
+				// 2d. release Frame source
 				cout << "Release frame source" << endl;
 				pFrameSource->Release();
 				pFrameSource = nullptr;
