@@ -1,3 +1,6 @@
+// Created by Heresy @ 2015/01/13
+// Blog Page: http://kheresy.wordpress.com/2015/01/13/k4w-v2-opencv-depth-viewer/
+
 // Standard Library
 #include <iostream>
 

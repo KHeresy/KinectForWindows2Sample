@@ -1,3 +1,6 @@
+// Created by Heresy @ 2015/01/08
+// Blog Page: http://kheresy.wordpress.com/2015/01/08/k4w-v2-simple-depth-reader-cpp/
+
 // Standard Library
 #include <iostream>
 
