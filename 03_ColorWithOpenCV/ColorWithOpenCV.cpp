@@ -1,3 +1,7 @@
+// Created by Heresy @ 2015/01/13
+// Blog Page: 
+// This sample is used to read color image from Kinect v2 sensor, and show the image with OpenCV.
+
 // Standard Library
 #include <iostream>
 
@@ -61,12 +65,14 @@ int main(int argc, char** argv)
 	}
 
 	// 2c. release Frame source
+	cout << "Release frame source" << endl;
 	pFrameSource->Release();
 	pFrameSource = nullptr;
 
-	// CV.1 Prepare OpenCV data
+	// Prepare OpenCV data
 	cv::Mat	mImg(iHeight,iWidth,CV_8UC4);
 	UINT iBufferSize = iHeight * iWidth * mImg.elemSize();
+	cv::namedWindow("Color Map");
 
 	// Enter main loop
 	while (true)
@@ -90,13 +96,16 @@ int main(int argc, char** argv)
 	}
 
 	// 3b. release frame reader
+	cout << "Release frame reader" << endl;
 	pFrameReader->Release();
 	pFrameReader = nullptr;
 
 	// 1c. Close Sensor
+	cout << "close sensor" << endl;
 	pSensor->Close();
 
 	// 1d. Release Sensor
+	cout << "Release sensor" << endl;
 	pSensor->Release();
 	pSensor = nullptr;
 

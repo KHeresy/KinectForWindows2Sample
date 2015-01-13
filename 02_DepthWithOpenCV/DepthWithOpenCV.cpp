@@ -1,5 +1,6 @@
 // Created by Heresy @ 2015/01/13
 // Blog Page: http://kheresy.wordpress.com/2015/01/13/k4w-v2-opencv-depth-viewer/
+// This sample is used to read depth map from Kinect v2 sensor, and show the image with OpenCV.
 
 // Standard Library
 #include <iostream>

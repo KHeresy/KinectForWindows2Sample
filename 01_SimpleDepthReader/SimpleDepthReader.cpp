@@ -1,5 +1,6 @@
 // Created by Heresy @ 2015/01/08
 // Blog Page: http://kheresy.wordpress.com/2015/01/08/k4w-v2-simple-depth-reader-cpp/
+// This sample is used to read depth map from Kinect v2 sensor, and output 1 pixel value in console.
 
 // Standard Library
 #include <iostream>
