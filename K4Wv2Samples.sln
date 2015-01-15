@@ -11,6 +11,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "03_ColorWithOpenCV", "03_Co
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "04_IRWithOpenCV", "04_IRWithOpenCV\IRWithOpenCV.vcxproj", "{FCB30F86-1C6E-4A64-9D82-9344D4C3CC8C}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "05_LongExIRWithOpenCV", "05_LongExIRWithOpenCV\LongExIRWithOpenCV.vcxproj", "{24592CE4-A235-4889-86B4-164420DF1B7A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -33,6 +35,10 @@ Global
 		{FCB30F86-1C6E-4A64-9D82-9344D4C3CC8C}.Debug|Win32.Build.0 = Debug|Win32
 		{FCB30F86-1C6E-4A64-9D82-9344D4C3CC8C}.Release|Win32.ActiveCfg = Release|Win32
 		{FCB30F86-1C6E-4A64-9D82-9344D4C3CC8C}.Release|Win32.Build.0 = Release|Win32
+		{24592CE4-A235-4889-86B4-164420DF1B7A}.Debug|Win32.ActiveCfg = Debug|Win32
+		{24592CE4-A235-4889-86B4-164420DF1B7A}.Debug|Win32.Build.0 = Debug|Win32
+		{24592CE4-A235-4889-86B4-164420DF1B7A}.Release|Win32.ActiveCfg = Release|Win32
+		{24592CE4-A235-4889-86B4-164420DF1B7A}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
