@@ -71,7 +71,7 @@ int main(int argc, char** argv)
 
 	// Prepare OpenCV data
 	cv::Mat	mImg(iHeight,iWidth,CV_8UC4);
-	UINT iBufferSize = iHeight * iWidth * mImg.elemSize();
+	UINT uBufferSize = iHeight * iWidth * 4 * sizeof(BYTE);
 	cv::namedWindow("Color Map");
 
 	// Enter main loop
@@ -82,7 +82,7 @@ int main(int argc, char** argv)
 		if (pFrameReader->AcquireLatestFrame(&pFrame) == S_OK)
 		{
 			// 4c. Copy to OpenCV image
-			pFrame->CopyConvertedFrameDataToArray(iBufferSize, mImg.data, ColorImageFormat_Bgra);
+			pFrame->CopyConvertedFrameDataToArray(uBufferSize, mImg.data, ColorImageFormat_Bgra);
 			cv::imshow("Color Map", mImg);
 
 			// 4e. release frame
