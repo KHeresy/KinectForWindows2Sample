@@ -1,5 +1,5 @@
-// Created by Heresy @ 2015/01/13
-// Blog Page: 
+// Created by Heresy @ 2015/01/16
+// Blog Page: http://kheresy.wordpress.com/2015/01/16/k4w-v2-read-color-and-ir-image/
 // This sample is used to read color image from Kinect v2 sensor, and show the image with OpenCV.
 
 // Standard Library
