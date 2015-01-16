@@ -35,8 +35,9 @@ int main(int argc, char** argv)
 	}
 
 	IColorFrameReader* pColorFrameReader = nullptr;
+	cv::Mat	imgColor;
 	UINT uColorBufferSize = 0;
-	array<int, 2> aColorSize;
+	UINT uColorPointNum = 0;
 	cout << "Try to get color source" << endl;
 	{
 		// Get frame source
@@ -50,10 +51,12 @@ int main(int argc, char** argv)
 		// Get frame description
 		cout << "get color frame description" << endl;
 		IFrameDescription* pFrameDescription = nullptr;
+		int iWidth = 0,
+			iHeight = 0;
 		if (pFrameSource->get_FrameDescription(&pFrameDescription) == S_OK)
 		{
-			pFrameDescription->get_Width(&aColorSize[0]);
-			pFrameDescription->get_Height(&aColorSize[1]);
+			pFrameDescription->get_Width(&iWidth);
+			pFrameDescription->get_Height(&iHeight);
 		}
 		pFrameDescription->Release();
 		pFrameDescription = nullptr;
@@ -71,11 +74,13 @@ int main(int argc, char** argv)
 		pFrameSource->Release();
 		pFrameSource = nullptr;
 
-		uColorBufferSize = aColorSize[0] * aColorSize[1] * 4 * sizeof(unsigned char);
+		imgColor = cv::Mat(iHeight, iWidth,CV_8UC4);
+		uColorPointNum = iWidth * iHeight;
+		uColorBufferSize = uColorPointNum * 4 * sizeof(unsigned char);
 	}
 
 	IDepthFrameReader* pDepthFrameReader = nullptr;
-	array<int, 2> aDepthSize;
+	cv::Mat imgDepth;
 	UINT uDepthPointNum = 0;
 	cout << "Try to get depth source" << endl;
 	{
@@ -90,10 +95,12 @@ int main(int argc, char** argv)
 		// Get frame description
 		cout << "get depth frame description" << endl;
 		IFrameDescription* pFrameDescription = nullptr;
+		int iWidth = 0,
+			iHeight = 0;
 		if (pFrameSource->get_FrameDescription(&pFrameDescription) == S_OK)
 		{
-			pFrameDescription->get_Width(&aDepthSize[0]);
-			pFrameDescription->get_Height(&aDepthSize[1]);
+			pFrameDescription->get_Width(&iWidth);
+			pFrameDescription->get_Height(&iHeight);
 		}
 		pFrameDescription->Release();
 		pFrameDescription = nullptr;
@@ -111,7 +118,8 @@ int main(int argc, char** argv)
 		pFrameSource->Release();
 		pFrameSource = nullptr;
 
-		uDepthPointNum = aDepthSize[0] * aDepthSize[1];
+		imgDepth = cv::Mat(iHeight, iWidth, CV_16UC1);
+		uDepthPointNum = iWidth * iHeight;
 	}
 
 	ICoordinateMapper* pCoordinateMapper;
@@ -122,47 +130,36 @@ int main(int argc, char** argv)
 	}
 
 	// Enter main loop
-	UINT				uColorPointNum = aColorSize[0] * aColorSize[1];
-	unsigned char*		pColorImage = new unsigned char[uColorPointNum * 4];
-	UINT16*				pDrpthImage = new UINT16[aDepthSize[0] * aDepthSize[1]];
-	DepthSpacePoint*	pPointArray = new DepthSpacePoint[aColorSize[0] * aColorSize[1]];
-
+	DepthSpacePoint* pPointArray = new DepthSpacePoint[uColorPointNum];
 	while (true)
 	{
-		cv::Mat imgColor;
-
 		IColorFrame* pColorFrame = nullptr;
 		if (pColorFrameReader->AcquireLatestFrame(&pColorFrame) == S_OK)
 		{
-			pColorFrame->CopyConvertedFrameDataToArray(uColorBufferSize, pColorImage, ColorImageFormat_Bgra);
+			pColorFrame->CopyConvertedFrameDataToArray(uColorBufferSize, imgColor.data, ColorImageFormat_Bgra);
 			pColorFrame->Release();
+		}
 
-			imgColor = cv::Mat(aColorSize[1], aColorSize[0], CV_8UC4, pColorImage);
+		IDepthFrame* pDepthFrame = nullptr;
+		if (pDepthFrameReader->AcquireLatestFrame(&pDepthFrame) == S_OK)
+		{
+			pDepthFrame->CopyFrameDataToArray(uDepthPointNum, reinterpret_cast<UINT16*>(imgDepth.data));
+			pDepthFrame->Release();
+		}
 
-			IDepthFrame* pDepthFrame = nullptr;
-			if (pDepthFrameReader->AcquireLatestFrame(&pDepthFrame) == S_OK)
-			{
-				pDepthFrame->CopyFrameDataToArray(uDepthPointNum, pDrpthImage);
-				pDepthFrame->Release();
-			}
-
-			if (pCoordinateMapper->MapColorFrameToDepthSpace(uDepthPointNum, pDrpthImage, uColorPointNum, pPointArray) == S_OK)
-			{
-				for (size_t y = 0; y < aColorSize[1]; ++y)
-					for (size_t x = 0; x < aColorSize[0]; ++x)
+		if (pCoordinateMapper->MapColorFrameToDepthSpace(uDepthPointNum, reinterpret_cast<UINT16*>(imgDepth.data), uColorPointNum, pPointArray) == S_OK)
+		{
+			for (size_t y = 0; y < imgColor.rows; ++y)
+				for (size_t x = 0; x < imgColor.cols; ++x)
+				{
+					const DepthSpacePoint& rPoint = pPointArray[y * imgColor.cols + x];
+					if (rPoint.X >= 0 && rPoint.X < imgDepth.cols && rPoint.Y >= 0 && rPoint.Y < imgDepth.rows)
 					{
-						const DepthSpacePoint& rPoint = pPointArray[y * aColorSize[0] + x];
-						if (rPoint.X >= 0 && rPoint.X < aDepthSize[0] && rPoint.Y >= 0 && rPoint.Y < aDepthSize[1])
-						{
-							size_t idx = (int)rPoint.Y *aDepthSize[0] + (int)rPoint.X;
-							INT16 vDepth = pDrpthImage[idx];
-
-							imgColor.at<cv::Vec4b>(y, x) = 255 * vDepth / 8000;
-						}
+						imgColor.at<cv::Vec4b>(y, x) = 255 * imgDepth.at<UINT16>((int)rPoint.Y, (int)rPoint.X) / 8000;
 					}
+				}
 
-				cv::imshow("Image", imgColor);
-			}
+			cv::imshow("Image", imgColor);
 		}
 
 		// check keyboard input
@@ -170,8 +167,6 @@ int main(int argc, char** argv)
 			break;
 		}
 	}
-	delete pColorImage;
-	delete pDrpthImage;
 	delete pPointArray;
 
 	// 3b. release frame reader
