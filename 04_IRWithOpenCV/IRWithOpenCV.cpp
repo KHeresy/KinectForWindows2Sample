@@ -87,6 +87,10 @@ int main(int argc, char** argv)
 				cv::Mat mIRImg(iHeight, iWidth, CV_16UC1, pBuffer);
 				cv::imshow("Infrared Image", mIRImg);
 			}
+			else
+			{
+				cerr << "Data access error" << endl;
+			}
 
 			// 4e. release frame
 			pFrame->Release();

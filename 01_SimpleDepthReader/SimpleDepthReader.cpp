@@ -71,13 +71,18 @@ int main(int argc, char** argv)
 							// 4c. Get image buffer
 							UINT	uBufferSize = 0;
 							UINT16*	pBuffer = nullptr;
-							pFrame->AccessUnderlyingBuffer(&uBufferSize, &pBuffer);
-
-							// 4d. Output depth value
-							int x = iWidth / 2,
-								y = iHeight / 2;
-							size_t idx = x + iWidth * y;
-							std::cout << pBuffer[idx] << std::endl;
+							if (pFrame->AccessUnderlyingBuffer(&uBufferSize, &pBuffer) == S_OK)
+							{
+								// 4d. Output depth value
+								int x = iWidth / 2,
+									y = iHeight / 2;
+								size_t idx = x + iWidth * y;
+								std::cout << pBuffer[idx] << std::endl;
+							}
+							else
+							{
+								cerr << "Data access error" << endl;
+							}
 
 							// 4e. release frame
 							pFrame->Release();

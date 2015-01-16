@@ -82,8 +82,14 @@ int main(int argc, char** argv)
 		if (pFrameReader->AcquireLatestFrame(&pFrame) == S_OK)
 		{
 			// 4c. Copy to OpenCV image
-			pFrame->CopyConvertedFrameDataToArray(uBufferSize, mImg.data, ColorImageFormat_Bgra);
-			cv::imshow("Color Map", mImg);
+			if (pFrame->CopyConvertedFrameDataToArray(uBufferSize, mImg.data, ColorImageFormat_Bgra) == S_OK)
+			{
+				cv::imshow("Color Map", mImg);
+			}
+			else
+			{
+				cerr << "Data copy error" << endl;
+			}
 
 			// 4e. release frame
 			pFrame->Release();

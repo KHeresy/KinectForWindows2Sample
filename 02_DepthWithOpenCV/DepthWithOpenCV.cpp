@@ -83,11 +83,16 @@ int main(int argc, char** argv)
 						if (pFrameReader->AcquireLatestFrame(&pFrame) == S_OK)
 						{
 							// 4c. copy the depth map to image
-							pFrame->CopyFrameDataToArray(iWidth * iHeight, reinterpret_cast<UINT16*>(mDepthImg.data));
-
-							// 4d. convert from 16bit to 8bit
-							mDepthImg.convertTo(mImg8bit, CV_8U, 255.0f / uDepthMax );
-							cv::imshow("Depth Map", mImg8bit);
+							if (pFrame->CopyFrameDataToArray(iWidth * iHeight, reinterpret_cast<UINT16*>(mDepthImg.data)) == S_OK)
+							{
+								// 4d. convert from 16bit to 8bit
+								mDepthImg.convertTo(mImg8bit, CV_8U, 255.0f / uDepthMax);
+								cv::imshow("Depth Map", mImg8bit);
+							}
+							else
+							{
+								cerr << "Data copy error" << endl;
+							}
 
 							// 4e. release frame
 							pFrame->Release();
