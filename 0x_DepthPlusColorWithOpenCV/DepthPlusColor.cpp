@@ -122,13 +122,16 @@ int main(int argc, char** argv)
 		uDepthPointNum = iWidth * iHeight;
 	}
 
-	ICoordinateMapper* pCoordinateMapper;
+	ICoordinateMapper* pCoordinateMapper = nullptr;
 	if( pSensor->get_CoordinateMapper(&pCoordinateMapper) != S_OK )
 	{
 		cerr << "get_CoordinateMapper failed" << endl;
 		return -1;
 	}
 
+	UINT32 uTableSize = 0;
+	PointF* aTable = nullptr;
+	auto res = pCoordinateMapper->GetDepthFrameToCameraSpaceTable(&uTableSize, &aTable);
 	// Enter main loop
 	DepthSpacePoint* pPointArray = new DepthSpacePoint[uColorPointNum];
 	while (true)

@@ -13,7 +13,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "04_IRWithOpenCV", "04_IRWit
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "05_LongExIRWithOpenCV", "05_LongExIRWithOpenCV\LongExIRWithOpenCV.vcxproj", "{24592CE4-A235-4889-86B4-164420DF1B7A}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "06_CoordinateMapper", "06_DepthPlusColorWithOpenCV\DepthPlusColor.vcxproj", "{39ABF794-20E4-49AF-A80D-6C218E5EB9F7}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "06_BodyIndexWithOpenCV", "06_BodyIndexWithOpenCV\BodyIndexWithOpenCV.vcxproj", "{A7C7D2C1-8DB3-4498-B91C-8FFE8D00ABC2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -41,10 +41,10 @@ Global
 		{24592CE4-A235-4889-86B4-164420DF1B7A}.Debug|Win32.Build.0 = Debug|Win32
 		{24592CE4-A235-4889-86B4-164420DF1B7A}.Release|Win32.ActiveCfg = Release|Win32
 		{24592CE4-A235-4889-86B4-164420DF1B7A}.Release|Win32.Build.0 = Release|Win32
-		{39ABF794-20E4-49AF-A80D-6C218E5EB9F7}.Debug|Win32.ActiveCfg = Debug|Win32
-		{39ABF794-20E4-49AF-A80D-6C218E5EB9F7}.Debug|Win32.Build.0 = Debug|Win32
-		{39ABF794-20E4-49AF-A80D-6C218E5EB9F7}.Release|Win32.ActiveCfg = Release|Win32
-		{39ABF794-20E4-49AF-A80D-6C218E5EB9F7}.Release|Win32.Build.0 = Release|Win32
+		{A7C7D2C1-8DB3-4498-B91C-8FFE8D00ABC2}.Debug|Win32.ActiveCfg = Debug|Win32
+		{A7C7D2C1-8DB3-4498-B91C-8FFE8D00ABC2}.Debug|Win32.Build.0 = Debug|Win32
+		{A7C7D2C1-8DB3-4498-B91C-8FFE8D00ABC2}.Release|Win32.ActiveCfg = Release|Win32
+		{A7C7D2C1-8DB3-4498-B91C-8FFE8D00ABC2}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
