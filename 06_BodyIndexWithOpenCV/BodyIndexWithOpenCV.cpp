@@ -1,5 +1,5 @@
 // Created by Heresy @ 2015/01/20
-// Blog Page: 
+// Blog Page: http://kheresy.wordpress.com/2015/01/20/k4w-v2-body-index/
 // This sample is used to read body index image from Kinect v2 sensor, and show the image with OpenCV.
 
 // Standard Library
@@ -71,7 +71,6 @@ int main(int argc, char** argv)
 
 	// Prepare OpenCV data
 	cv::Mat	mImg(iHeight, iWidth, CV_8UC3);
-	UINT uBufferSize = iHeight * iWidth * 4 * sizeof(BYTE);
 	cv::namedWindow("Body Index Image");
 
 	// color array
@@ -92,7 +91,7 @@ int main(int argc, char** argv)
 		IBodyIndexFrame* pFrame = nullptr;
 		if (pFrameReader->AcquireLatestFrame(&pFrame) == S_OK)
 		{
-			// 4c. Copy to OpenCV image
+			// 4c. Fill OpenCV image
 			UINT uSize = 0;
 			BYTE* pBuffer = nullptr;
 			if (pFrame->AccessUnderlyingBuffer(&uSize,&pBuffer) == S_OK)
