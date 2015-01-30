@@ -1,6 +1,7 @@
-// Created by Heresy @ 2015/01/13
+// Created by Heresy @ 2015/01/30
 // Blog Page: 
-// This sample is used to read color and depth image from Kinect v2 sensor, and show the image with OpenCV.
+// This sample will use body index frme to filter color frame, show an user only im age with OpenCV.
+// ICoordinateMapper is required to map different image coordination.
 
 // Standard Library
 #include <array>
