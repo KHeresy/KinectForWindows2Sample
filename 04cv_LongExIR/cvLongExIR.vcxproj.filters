@@ -15,7 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="IRWithOpenCV.cpp">
+    <ClCompile Include="cvLongExIR.cpp">
       <Filter>原始程式檔</Filter>
     </ClCompile>
   </ItemGroup>

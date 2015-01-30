@@ -10,11 +10,14 @@
       <Platform>Win32</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="cvBodyIndex.cpp" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{3270836E-88CC-45FC-ACB2-4410FB65D534}</ProjectGuid>
+    <ProjectGuid>{A7C7D2C1-8DB3-4498-B91C-8FFE8D00ABC2}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>My02_DepthWithOpenCV</RootNamespace>
-    <ProjectName>02_DepthWithOpenCV</ProjectName>
+    <ProjectName>05cv_BodyIndex</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -84,9 +87,6 @@
       <AdditionalDependencies>kinect20.lib;opencv_world300.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="DepthWithOpenCV.cpp" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

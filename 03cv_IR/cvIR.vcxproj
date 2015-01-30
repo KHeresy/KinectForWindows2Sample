@@ -11,13 +11,13 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="BodyIndexWithOpenCV.cpp" />
+    <ClCompile Include="cvIR.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{A7C7D2C1-8DB3-4498-B91C-8FFE8D00ABC2}</ProjectGuid>
+    <ProjectGuid>{FCB30F86-1C6E-4A64-9D82-9344D4C3CC8C}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>My02_DepthWithOpenCV</RootNamespace>
-    <ProjectName>06_BodyIndexWithOpenCV</ProjectName>
+    <ProjectName>03cv_IR</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">

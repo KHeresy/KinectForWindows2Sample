@@ -11,13 +11,13 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ColorWithOpenCV.cpp" />
+    <ClCompile Include="cvDepth.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{FE1232D3-CF0C-49EB-B389-F176D8BFF849}</ProjectGuid>
+    <ProjectGuid>{3270836E-88CC-45FC-ACB2-4410FB65D534}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>My02_DepthWithOpenCV</RootNamespace>
-    <ProjectName>03_ColorWithOpenCV</ProjectName>
+    <ProjectName>01cv_Depth</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">

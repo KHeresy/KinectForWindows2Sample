@@ -11,13 +11,13 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="IRWithOpenCV.cpp" />
+    <ClCompile Include="cvLongExIR.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{FCB30F86-1C6E-4A64-9D82-9344D4C3CC8C}</ProjectGuid>
+    <ProjectGuid>{24592CE4-A235-4889-86B4-164420DF1B7A}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>My02_DepthWithOpenCV</RootNamespace>
-    <ProjectName>04_IRWithOpenCV</ProjectName>
+    <ProjectName>04cv_LongExIR</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">

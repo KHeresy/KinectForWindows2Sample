@@ -5,15 +5,15 @@ VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "01_SimpleDepthReader", "01_SimpleDepthReader\SimpleDepthReader.vcxproj", "{B203E478-2467-416B-B850-9913ABC69AA4}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "02_DepthWithOpenCV", "02_DepthWithOpenCV\DepthWithOpenCV.vcxproj", "{3270836E-88CC-45FC-ACB2-4410FB65D534}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "01cv_Depth", "01cv_Depth\cvDepth.vcxproj", "{3270836E-88CC-45FC-ACB2-4410FB65D534}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "03_ColorWithOpenCV", "03_ColorWithOpenCV\ColorWithOpenCV.vcxproj", "{FE1232D3-CF0C-49EB-B389-F176D8BFF849}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "02cv_Color", "02cv_Color\cvColor.vcxproj", "{FE1232D3-CF0C-49EB-B389-F176D8BFF849}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "04_IRWithOpenCV", "04_IRWithOpenCV\IRWithOpenCV.vcxproj", "{FCB30F86-1C6E-4A64-9D82-9344D4C3CC8C}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "03cv_IR", "03cv_IR\cvIR.vcxproj", "{FCB30F86-1C6E-4A64-9D82-9344D4C3CC8C}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "05_LongExIRWithOpenCV", "05_LongExIRWithOpenCV\LongExIRWithOpenCV.vcxproj", "{24592CE4-A235-4889-86B4-164420DF1B7A}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "04cv_LongExIR", "04cv_LongExIR\cvLongExIR.vcxproj", "{24592CE4-A235-4889-86B4-164420DF1B7A}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "06_BodyIndexWithOpenCV", "06_BodyIndexWithOpenCV\BodyIndexWithOpenCV.vcxproj", "{A7C7D2C1-8DB3-4498-B91C-8FFE8D00ABC2}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "05cv_BodyIndex", "05cv_BodyIndex\cvBodyIndex.vcxproj", "{A7C7D2C1-8DB3-4498-B91C-8FFE8D00ABC2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
