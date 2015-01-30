@@ -17,6 +17,7 @@ using namespace std;
 
 int main(int argc, char** argv)
 {
+	// 1. Sensor related code
 	cout << "Try to get default sensor" << endl;
 	IKinectSensor* pSensor = nullptr;
 	{
@@ -34,6 +35,7 @@ int main(int argc, char** argv)
 		}
 	}
 
+	// 2. Color related code
 	IColorFrameReader* pColorFrameReader = nullptr;
 	cv::Mat	imgColor;
 	UINT uColorBufferSize = 0;
@@ -79,9 +81,10 @@ int main(int argc, char** argv)
 		uColorBufferSize = uColorPointNum * 4 * sizeof(unsigned char);
 	}
 
+	// 2. Depth related code
 	IDepthFrameReader* pDepthFrameReader = nullptr;
-	cv::Mat imgDepth;
 	UINT uDepthPointNum = 0;
+	int iDepthWidth = 0, iDepthHeight = 0;
 	cout << "Try to get depth source" << endl;
 	{
 		// Get frame source
@@ -95,12 +98,11 @@ int main(int argc, char** argv)
 		// Get frame description
 		cout << "get depth frame description" << endl;
 		IFrameDescription* pFrameDescription = nullptr;
-		int iWidth = 0,
-			iHeight = 0;
 		if (pFrameSource->get_FrameDescription(&pFrameDescription) == S_OK)
 		{
-			pFrameDescription->get_Width(&iWidth);
-			pFrameDescription->get_Height(&iHeight);
+			pFrameDescription->get_Width(&iDepthWidth);
+			pFrameDescription->get_Height(&iDepthHeight);
+			uDepthPointNum = iDepthWidth * iDepthHeight;
 		}
 		pFrameDescription->Release();
 		pFrameDescription = nullptr;
@@ -117,11 +119,35 @@ int main(int argc, char** argv)
 		cout << "Release frame source" << endl;
 		pFrameSource->Release();
 		pFrameSource = nullptr;
-
-		imgDepth = cv::Mat(iHeight, iWidth, CV_16UC1);
-		uDepthPointNum = iWidth * iHeight;
 	}
 
+	// 3. Body Index releated code
+	IBodyIndexFrameReader* pBIFrameReader = nullptr;
+	cout << "Try to get body index source" << endl;
+	{
+		// Get frame source
+		IBodyIndexFrameSource* pFrameSource = nullptr;
+		if (pSensor->get_BodyIndexFrameSource(&pFrameSource) != S_OK)
+		{
+			cerr << "Can't get body index frame source" << endl;
+			return -1;
+		}
+
+		// get frame reader
+		cout << "Try to get body index frame reader" << endl;
+		if (pFrameSource->OpenReader(&pBIFrameReader) != S_OK)
+		{
+			cerr << "Can't get depth frame reader" << endl;
+			return -1;
+		}
+
+		// release Frame source
+		cout << "Release frame source" << endl;
+		pFrameSource->Release();
+		pFrameSource = nullptr;
+	}
+
+	// 4. Coordinate Mapper
 	ICoordinateMapper* pCoordinateMapper = nullptr;
 	if( pSensor->get_CoordinateMapper(&pCoordinateMapper) != S_OK )
 	{
@@ -129,36 +155,60 @@ int main(int argc, char** argv)
 		return -1;
 	}
 
-	UINT32 uTableSize = 0;
-	PointF* aTable = nullptr;
-	auto res = pCoordinateMapper->GetDepthFrameToCameraSpaceTable(&uTableSize, &aTable);
-	// Enter main loop
-	DepthSpacePoint* pPointArray = new DepthSpacePoint[uColorPointNum];
+	// 5. Enter main loop
+	UINT16*				pDepthPoints	= new UINT16[uDepthPointNum];
+	BYTE*				pBodyIndex		= new BYTE[uDepthPointNum];
+	DepthSpacePoint*	pPointArray		= new DepthSpacePoint[uColorPointNum];
 	while (true)
 	{
+		// Read color frame
 		IColorFrame* pColorFrame = nullptr;
 		if (pColorFrameReader->AcquireLatestFrame(&pColorFrame) == S_OK)
 		{
 			pColorFrame->CopyConvertedFrameDataToArray(uColorBufferSize, imgColor.data, ColorImageFormat_Bgra);
 			pColorFrame->Release();
+			pColorFrame = nullptr;
 		}
 
+		// read depth frame
 		IDepthFrame* pDepthFrame = nullptr;
 		if (pDepthFrameReader->AcquireLatestFrame(&pDepthFrame) == S_OK)
 		{
-			pDepthFrame->CopyFrameDataToArray(uDepthPointNum, reinterpret_cast<UINT16*>(imgDepth.data));
+			pDepthFrame->CopyFrameDataToArray(uDepthPointNum, pDepthPoints);
 			pDepthFrame->Release();
+			pDepthFrame = nullptr;
 		}
 
-		if (pCoordinateMapper->MapColorFrameToDepthSpace(uDepthPointNum, reinterpret_cast<UINT16*>(imgDepth.data), uColorPointNum, pPointArray) == S_OK)
+		// read depth frame
+		IBodyIndexFrame* pBIFrame = nullptr;
+		if (pBIFrameReader->AcquireLatestFrame(&pBIFrame) == S_OK)
 		{
-			for (size_t y = 0; y < imgColor.rows; ++y)
-				for (size_t x = 0; x < imgColor.cols; ++x)
+			pBIFrame->CopyFrameDataToArray(uDepthPointNum, pBodyIndex);
+			pBIFrame->Release();
+			pBIFrame = nullptr;
+		}
+
+		// map color to depth
+		if (pCoordinateMapper->MapColorFrameToDepthSpace(uDepthPointNum, pDepthPoints, uColorPointNum, pPointArray) == S_OK)
+		{
+			for (int y = 0; y < imgColor.rows; ++y)
+				for (int x = 0; x < imgColor.cols; ++x)
 				{
+					// ( x, y ) in color frame = rPoint in depth frame
 					const DepthSpacePoint& rPoint = pPointArray[y * imgColor.cols + x];
-					if (rPoint.X >= 0 && rPoint.X < imgDepth.cols && rPoint.Y >= 0 && rPoint.Y < imgDepth.rows)
+
+					// remove non user pixel
+					bool bKeep = false;
+					if (rPoint.X >= 0 && rPoint.X < iDepthWidth && rPoint.Y >= 0 && rPoint.Y < iDepthHeight)
 					{
-						imgColor.at<cv::Vec4b>(y, x) = 255 * imgDepth.at<UINT16>((int)rPoint.Y, (int)rPoint.X) / 8000;
+						int iIdx = (int)rPoint.X + iDepthWidth * (int)rPoint.Y;
+						if (pBodyIndex[iIdx] < 6)
+							bKeep = true;
+					}
+					
+					if (!bKeep)
+					{
+						imgColor.at<cv::Vec4b>(y, x) = cv::Vec4b(0,0,0,0);
 					}
 				}
 
@@ -171,6 +221,11 @@ int main(int argc, char** argv)
 		}
 	}
 	delete pPointArray;
+	delete pBodyIndex;
+	delete pDepthPoints;
+
+	pCoordinateMapper->Release();
+	pCoordinateMapper = nullptr;
 
 	// 3b. release frame reader
 	cout << "Release frame reader" << endl;
@@ -178,6 +233,8 @@ int main(int argc, char** argv)
 	pColorFrameReader = nullptr;
 	pDepthFrameReader->Release();
 	pDepthFrameReader = nullptr;
+	pBIFrameReader->Release();
+	pBIFrameReader = nullptr;
 
 	// 1c. Close Sensor
 	cout << "close sensor" << endl;

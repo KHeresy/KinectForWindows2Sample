@@ -11,13 +11,13 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="DepthPlusColor.cpp" />
+    <ClCompile Include="cvBackgroundRemove.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{39ABF794-20E4-49AF-A80D-6C218E5EB9F7}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>My02_DepthWithOpenCV</RootNamespace>
-    <ProjectName>06_DepthPlusColor</ProjectName>
+    <ProjectName>06cv_BackgroundRemove</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
