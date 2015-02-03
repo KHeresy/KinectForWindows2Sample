@@ -11,7 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ColorPointCloud.cpp" />
+    <ClCompile Include="glColorPointCloud.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{E24D258E-B1DD-4984-AD43-495FA8C4E2C8}</ProjectGuid>
