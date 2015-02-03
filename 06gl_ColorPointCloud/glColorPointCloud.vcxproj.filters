@@ -19,4 +19,9 @@
       <Filter>原始程式檔</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\OpenNI\OpenNI2_Course\Programs\common\OpenGLCamera.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+  </ItemGroup>
 </Project>

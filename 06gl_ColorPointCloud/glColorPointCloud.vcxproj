@@ -13,6 +13,9 @@
   <ItemGroup>
     <ClCompile Include="glColorPointCloud.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\OpenNI\OpenNI2_Course\Programs\common\OpenGLCamera.h" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{E24D258E-B1DD-4984-AD43-495FA8C4E2C8}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
