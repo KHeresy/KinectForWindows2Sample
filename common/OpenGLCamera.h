@@ -10,7 +10,7 @@
 #include <math.h>
 
 // glut Header
-#include <GL/glut.h>
+#include <GL/freeglut.h>
 
 class Vector3
 {

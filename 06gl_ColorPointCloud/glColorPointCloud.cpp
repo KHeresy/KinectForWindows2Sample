@@ -63,17 +63,17 @@ void display()
 	// Coordinate
 	glLineWidth(5.0f);
 	glBegin(GL_LINES);
-	glColor3ub(255, 0, 0);
-	glVertex3f(0, 0, 0);
-	glVertex3f(100, 0, 0);
+		glColor3ub(255, 0, 0);
+		glVertex3f(0, 0, 0);
+		glVertex3f(100, 0, 0);
 
-	glColor3ub(0, 255, 0);
-	glVertex3f(0, 0, 0);
-	glVertex3f(0, 100, 0);
+		glColor3ub(0, 255, 0);
+		glVertex3f(0, 0, 0);
+		glVertex3f(0, 100, 0);
 
-	glColor3ub(0, 0, 255);
-	glVertex3f(0, 0, 0);
-	glVertex3f(0, 0, 100);
+		glColor3ub(0, 0, 255);
+		glVertex3f(0, 0, 0);
+		glVertex3f(0, 0, 100);
 	glEnd();
 
 	// swap buffer
@@ -174,6 +174,17 @@ void specialKey(int key, int x, int y)
 		g_Camera.RotateSide(-fRotateScale);
 		break;
 	}
+}
+
+void reshape(int w, int h)
+{
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	gluPerspective(40.0, (float)w / h, 300.0, 20000.0);
+
+	g_Camera.SetCamera();
+
+	glViewport(0, 0, w, h);
 }
 
 void ExitFunction()
@@ -317,18 +328,15 @@ int main(int argc, char** argv)
 	glEnable(GL_DEPTH_TEST);
 	glDisable(GL_LIGHTING);
 
-	glMatrixMode(GL_PROJECTION);
-	gluPerspective(40.0, 1.0, 300.0, 20000.0);	// FOV, aspect ration, near, far
-
 	// default camera
 	g_Camera.vCenter = Vector3(0.0, 0.0, 1000.0);
 	g_Camera.vPosition = Vector3(0.0, 0.0, -2000.0);
 	g_Camera.vUpper = Vector3(0.0, 1.0, 0.0);
-	g_Camera.SetCamera();
 
 	// register glut callback functions
 	glutDisplayFunc(display);
 	glutIdleFunc(idle);
+	glutReshapeFunc(reshape);
 	glutKeyboardFunc(keyboard);
 	glutSpecialFunc(specialKey);
 
