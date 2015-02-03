@@ -61,7 +61,7 @@ int main(int argc, char** argv)
 			pFrameDescription->get_Height(&iColorHeight);
 
 			uColorPointNum = iColorWidth * iColorHeight;
-			uColorBufferSize = uColorPointNum * 4 * sizeof(unsigned char);
+			uColorBufferSize = uColorPointNum * 4 * sizeof(BYTE);
 		}
 		pFrameDescription->Release();
 		pFrameDescription = nullptr;

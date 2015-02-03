@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "01_SimpleDepthReader", "01_SimpleDepthReader\SimpleDepthReader.vcxproj", "{B203E478-2467-416B-B850-9913ABC69AA4}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "01cv_Depth", "01cv_Depth\cvDepth.vcxproj", "{3270836E-88CC-45FC-ACB2-4410FB65D534}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "02cv_Color", "02cv_Color\cvColor.vcxproj", "{FE1232D3-CF0C-49EB-B389-F176D8BFF849}"
@@ -15,7 +13,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "04cv_LongExIR", "04cv_LongE
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "05cv_BodyIndex", "05cv_BodyIndex\cvBodyIndex.vcxproj", "{A7C7D2C1-8DB3-4498-B91C-8FFE8D00ABC2}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "06_DepthPlusColor", "06cv_BackgroundRemove\cvBackgroundRemove.vcxproj", "{39ABF794-20E4-49AF-A80D-6C218E5EB9F7}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "06cv_BackgroundRemove", "06cv_BackgroundRemove\cvBackgroundRemove.vcxproj", "{39ABF794-20E4-49AF-A80D-6C218E5EB9F7}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "06gl_ColorPointCloud", "06gl_ColorPointCloud\ColorPointCloud.vcxproj", "{E24D258E-B1DD-4984-AD43-495FA8C4E2C8}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "01_SimpleDepthReader", "01_SimpleDepthReader\SimpleDepthReader.vcxproj", "{B203E478-2467-416B-B850-9913ABC69AA4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,10 +25,6 @@ Global
 		Release|Win32 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{B203E478-2467-416B-B850-9913ABC69AA4}.Debug|Win32.ActiveCfg = Debug|Win32
-		{B203E478-2467-416B-B850-9913ABC69AA4}.Debug|Win32.Build.0 = Debug|Win32
-		{B203E478-2467-416B-B850-9913ABC69AA4}.Release|Win32.ActiveCfg = Release|Win32
-		{B203E478-2467-416B-B850-9913ABC69AA4}.Release|Win32.Build.0 = Release|Win32
 		{3270836E-88CC-45FC-ACB2-4410FB65D534}.Debug|Win32.ActiveCfg = Debug|Win32
 		{3270836E-88CC-45FC-ACB2-4410FB65D534}.Debug|Win32.Build.0 = Debug|Win32
 		{3270836E-88CC-45FC-ACB2-4410FB65D534}.Release|Win32.ActiveCfg = Release|Win32
@@ -51,6 +49,14 @@ Global
 		{39ABF794-20E4-49AF-A80D-6C218E5EB9F7}.Debug|Win32.Build.0 = Debug|Win32
 		{39ABF794-20E4-49AF-A80D-6C218E5EB9F7}.Release|Win32.ActiveCfg = Release|Win32
 		{39ABF794-20E4-49AF-A80D-6C218E5EB9F7}.Release|Win32.Build.0 = Release|Win32
+		{E24D258E-B1DD-4984-AD43-495FA8C4E2C8}.Debug|Win32.ActiveCfg = Debug|Win32
+		{E24D258E-B1DD-4984-AD43-495FA8C4E2C8}.Debug|Win32.Build.0 = Debug|Win32
+		{E24D258E-B1DD-4984-AD43-495FA8C4E2C8}.Release|Win32.ActiveCfg = Release|Win32
+		{E24D258E-B1DD-4984-AD43-495FA8C4E2C8}.Release|Win32.Build.0 = Release|Win32
+		{B203E478-2467-416B-B850-9913ABC69AA4}.Debug|Win32.ActiveCfg = Debug|Win32
+		{B203E478-2467-416B-B850-9913ABC69AA4}.Debug|Win32.Build.0 = Debug|Win32
+		{B203E478-2467-416B-B850-9913ABC69AA4}.Release|Win32.ActiveCfg = Release|Win32
+		{B203E478-2467-416B-B850-9913ABC69AA4}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
