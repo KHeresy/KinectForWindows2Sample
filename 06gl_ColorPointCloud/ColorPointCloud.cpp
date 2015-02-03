@@ -1,7 +1,6 @@
-// Created by Heresy @ 2015/01/30
-// Blog Page: https://kheresy.wordpress.com/2015/02/02/k4w-v2-c-part-5-simple-background-remove/
-// This sample will use body index frme to filter color frame, show an user only im age with OpenCV.
-// ICoordinateMapper is required to map different image coordination.
+// Created by Heresy @ 2015/02/03
+// Blog Page: 
+// This sample is used to show Kinect data in cloud points form.
 
 // Standard Library
 #include <array>
@@ -12,6 +11,9 @@
 
 // Kinect for Windows SDK Header
 #include <Kinect.h>
+
+// for OpenGL camera navigation
+#include "../common/OpenGLCamera.h"
 
 using namespace std;
 
@@ -30,6 +32,8 @@ UINT	uColorBufferSize	= 0;
 UINT16*	pDepthBuffer = nullptr;
 BYTE*	pColorBuffer = nullptr;
 CameraSpacePoint* pCSPoints = nullptr;
+
+SimpleCamera g_Camera;
 
 // glut display function(draw)
 void display()
@@ -115,11 +119,61 @@ void idle()
 // glut keyboard function
 void keyboard(unsigned char key, int x, int y)
 {
+	float fSpeed = 10.0f;
+	switch (key)
+	{
+	case VK_ESCAPE:
+		glutExit();
+
+	case 's':
+		g_Camera.MoveForward(-fSpeed);
+		break;
+
+	case 'w':
+		g_Camera.MoveForward(fSpeed);
+		break;
+
+	case 'a':
+		g_Camera.MoveSide(-fSpeed);
+		break;
+
+	case 'd':
+		g_Camera.MoveSide(fSpeed);
+		break;
+
+	case 'z':
+		g_Camera.MoveUp(-fSpeed);
+		break;
+
+	case 'x':
+		g_Camera.MoveUp(fSpeed);
+		break;
+	}
+
 }
 
 // glut special keyboard function
 void specialKey(int key, int x, int y)
 {
+	float fRotateScale = 0.01f;
+	switch (key)
+	{
+	case GLUT_KEY_DOWN:
+		g_Camera.RotateUp(-fRotateScale);
+		break;
+
+	case GLUT_KEY_UP:
+		g_Camera.RotateUp(fRotateScale);
+		break;
+
+	case GLUT_KEY_RIGHT:
+		g_Camera.RotateSide(fRotateScale);
+		break;
+
+	case GLUT_KEY_LEFT:
+		g_Camera.RotateSide(-fRotateScale);
+		break;
+	}
 }
 
 void ExitFunction()
@@ -266,11 +320,11 @@ int main(int argc, char** argv)
 	glMatrixMode(GL_PROJECTION);
 	gluPerspective(40.0, 1.0, 300.0, 20000.0);	// FOV, aspect ration, near, far
 
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-	gluLookAt(0, 100, -2000,
-		0,0,1000,
-		0, 1, 0 );
+	// default camera
+	g_Camera.vCenter = Vector3(0.0, 0.0, 1000.0);
+	g_Camera.vPosition = Vector3(0.0, 0.0, -2000.0);
+	g_Camera.vUpper = Vector3(0.0, 1.0, 0.0);
+	g_Camera.SetCamera();
 
 	// register glut callback functions
 	glutDisplayFunc(display);
