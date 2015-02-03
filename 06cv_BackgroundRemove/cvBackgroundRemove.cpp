@@ -80,7 +80,7 @@ int main(int argc, char** argv)
 		pFrameSource = nullptr;
 	}
 
-	// 2. Depth related code
+	// 3. Depth related code
 	IDepthFrameReader* pDepthFrameReader = nullptr;
 	UINT uDepthPointNum = 0;
 	int iDepthWidth = 0, iDepthHeight = 0;
@@ -120,7 +120,7 @@ int main(int argc, char** argv)
 		pFrameSource = nullptr;
 	}
 
-	// 3. Body Index releated code
+	// 4. Body Index releated code
 	IBodyIndexFrameReader* pBIFrameReader = nullptr;
 	cout << "Try to get body index source" << endl;
 	{
@@ -146,7 +146,7 @@ int main(int argc, char** argv)
 		pFrameSource = nullptr;
 	}
 
-	// 4. Coordinate Mapper
+	// 5. Coordinate Mapper
 	ICoordinateMapper* pCoordinateMapper = nullptr;
 	if( pSensor->get_CoordinateMapper(&pCoordinateMapper) != S_OK )
 	{
@@ -154,11 +154,11 @@ int main(int argc, char** argv)
 		return -1;
 	}
 
-	// 5. OpenCV code
+	// 6. OpenCV code
 	cv::namedWindow("Background Remove");
 	cv::Mat	imgColor(iColorHeight, iColorWidth, CV_8UC4);
 
-	// 6. Load background
+	// 7. Load background
 	cv::Mat imgBG(iColorHeight, iColorWidth, CV_8UC3);
 	if (argc > 1)
 	{
@@ -170,13 +170,13 @@ int main(int argc, char** argv)
 		imgBG.setTo(128);
 	}
 
-	// 7. Enter main loop
+	// 8. Enter main loop
 	UINT16*				pDepthPoints	= new UINT16[uDepthPointNum];
 	BYTE*				pBodyIndex		= new BYTE[uDepthPointNum];
 	DepthSpacePoint*	pPointArray		= new DepthSpacePoint[uColorPointNum];
 	while (true)
 	{
-		// 7a. Read color frame
+		// 8a. Read color frame
 		IColorFrame* pColorFrame = nullptr;
 		if (pColorFrameReader->AcquireLatestFrame(&pColorFrame) == S_OK)
 		{
@@ -185,7 +185,7 @@ int main(int argc, char** argv)
 			pColorFrame = nullptr;
 		}
 
-		// 7b. read depth frame
+		// 8b. read depth frame
 		IDepthFrame* pDepthFrame = nullptr;
 		if (pDepthFrameReader->AcquireLatestFrame(&pDepthFrame) == S_OK)
 		{
@@ -194,7 +194,7 @@ int main(int argc, char** argv)
 			pDepthFrame = nullptr;
 		}
 
-		// 7c. read body index frame
+		// 8c. read body index frame
 		IBodyIndexFrame* pBIFrame = nullptr;
 		if (pBIFrameReader->AcquireLatestFrame(&pBIFrame) == S_OK)
 		{
@@ -203,10 +203,10 @@ int main(int argc, char** argv)
 			pBIFrame = nullptr;
 		}
 
-		// 8a. make a copy of background
+		// 9a. make a copy of background
 		cv::Mat imgTarget = imgBG.clone();
 
-		// 8b. map color to depth
+		// 9b. map color to depth
 		if (pCoordinateMapper->MapColorFrameToDepthSpace(uDepthPointNum, pDepthPoints, uColorPointNum, pPointArray) == S_OK)
 		{
 			for (int y = 0; y < imgColor.rows; ++y)
