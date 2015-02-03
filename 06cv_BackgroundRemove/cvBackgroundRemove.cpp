@@ -1,5 +1,5 @@
 // Created by Heresy @ 2015/01/30
-// Blog Page: 
+// Blog Page: https://kheresy.wordpress.com/2015/02/02/k4w-v2-c-part-5-simple-background-remove/
 // This sample will use body index frme to filter color frame, show an user only im age with OpenCV.
 // ICoordinateMapper is required to map different image coordination.
 
