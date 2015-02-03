@@ -238,9 +238,9 @@ int main(int argc, char** argv)
 			break;
 		}
 	}
-	delete pPointArray;
-	delete pBodyIndex;
-	delete pDepthPoints;
+	delete [] pPointArray;
+	delete [] pBodyIndex;
+	delete [] pDepthPoints;
 
 	// release coordinate mapper
 	cout << "Release coordinate mapper" << endl;
