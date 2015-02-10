@@ -19,6 +19,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "01_SimpleDepthReader", "01_
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "06gl_ColorPointCloud", "06gl_ColorPointCloud\glColorPointCloud.vcxproj", "{E24D258E-B1DD-4984-AD43-495FA8C4E2C8}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "07gl_Mesh", "07gl_Mesh\glMesh.vcxproj", "{81BCA207-DA1F-499F-8BB9-23BE1BA2645C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -57,6 +59,10 @@ Global
 		{E24D258E-B1DD-4984-AD43-495FA8C4E2C8}.Debug|Win32.Build.0 = Debug|Win32
 		{E24D258E-B1DD-4984-AD43-495FA8C4E2C8}.Release|Win32.ActiveCfg = Release|Win32
 		{E24D258E-B1DD-4984-AD43-495FA8C4E2C8}.Release|Win32.Build.0 = Release|Win32
+		{81BCA207-DA1F-499F-8BB9-23BE1BA2645C}.Debug|Win32.ActiveCfg = Debug|Win32
+		{81BCA207-DA1F-499F-8BB9-23BE1BA2645C}.Debug|Win32.Build.0 = Debug|Win32
+		{81BCA207-DA1F-499F-8BB9-23BE1BA2645C}.Release|Win32.ActiveCfg = Release|Win32
+		{81BCA207-DA1F-499F-8BB9-23BE1BA2645C}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
