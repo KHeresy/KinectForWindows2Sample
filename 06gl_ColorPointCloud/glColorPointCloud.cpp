@@ -54,7 +54,7 @@ void display()
 			if (rPt.Z > 0)
 			{
 				glColor4ubv((const GLubyte*)(&pColorBuffer[4 * idx]));
-				glVertex3f(rPt.X * 1000, rPt.Y * 1000, rPt.Z * 1000);
+				glVertex3f(rPt.X, rPt.Y, rPt.Z);
 			}
 		}
 	}
@@ -65,15 +65,15 @@ void display()
 	glBegin(GL_LINES);
 		glColor3ub(255, 0, 0);
 		glVertex3f(0, 0, 0);
-		glVertex3f(100, 0, 0);
+		glVertex3f(1, 0, 0);
 
 		glColor3ub(0, 255, 0);
 		glVertex3f(0, 0, 0);
-		glVertex3f(0, 100, 0);
+		glVertex3f(0, 1, 0);
 
 		glColor3ub(0, 0, 255);
 		glVertex3f(0, 0, 0);
-		glVertex3f(0, 0, 100);
+		glVertex3f(0, 0, 1);
 	glEnd();
 
 	// swap buffer
@@ -119,7 +119,7 @@ void idle()
 // glut keyboard function
 void keyboard(unsigned char key, int x, int y)
 {
-	float fSpeed = 10.0f;
+	float fSpeed = 0.1f;
 	switch (key)
 	{
 	case VK_ESCAPE:
@@ -149,7 +149,6 @@ void keyboard(unsigned char key, int x, int y)
 		g_Camera.MoveUp(fSpeed);
 		break;
 	}
-
 }
 
 // glut special keyboard function
@@ -180,7 +179,7 @@ void reshape(int w, int h)
 {
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(40.0, (float)w / h, 300.0, 20000.0);
+	gluPerspective(40.0, (float)w / h, 0.01, 50.0);
 
 	g_Camera.SetCamera();
 
@@ -329,8 +328,8 @@ int main(int argc, char** argv)
 	glDisable(GL_LIGHTING);
 
 	// default camera
-	g_Camera.vCenter = Vector3(0.0, 0.0, 1000.0);
-	g_Camera.vPosition = Vector3(0.0, 0.0, -2000.0);
+	g_Camera.vCenter = Vector3(0.0, 0.0, 1);
+	g_Camera.vPosition = Vector3(0.0, 0.0, -2.0);
 	g_Camera.vUpper = Vector3(0.0, 1.0, 0.0);
 
 	// register glut callback functions
