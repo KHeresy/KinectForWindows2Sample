@@ -322,7 +322,7 @@ int main(int argc, char** argv)
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_DEPTH | GLUT_RGB);
 
 	glutInitWindowSize(640, 480);
-	glutCreateWindow("OpenNI 3D OpenGL 3D Point");
+	glutCreateWindow("Kinect OpenGL 3D Point");
 
 	glEnable(GL_DEPTH_TEST);
 	glDisable(GL_LIGHTING);
