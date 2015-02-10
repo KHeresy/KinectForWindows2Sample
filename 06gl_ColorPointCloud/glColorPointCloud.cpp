@@ -83,7 +83,15 @@ void display()
 // glut idle function
 void idle()
 {
-	bool bUpdated = false;
+	// Read color data
+	IColorFrame* pCFrame = nullptr;
+	if (pColorFrameReader->AcquireLatestFrame(&pCFrame) == S_OK)
+	{
+		pCFrame->CopyConvertedFrameDataToArray( uColorBufferSize, pColorBuffer, ColorImageFormat_Rgba);
+
+		pCFrame->Release();
+		pCFrame = nullptr;
+	}
 
 	// Read depth data
 	IDepthFrame* pDFrame = nullptr;
@@ -94,24 +102,10 @@ void idle()
 		pDFrame->Release();
 		pDFrame = nullptr;
 
-		bUpdated = true;
-	}
+		// map to camera space
+		pCoordinateMapper->MapColorFrameToCameraSpace( uDepthPointNum, pDepthBuffer, uColorPointNum, pCSPoints);
 
-	// Read color data
-	IColorFrame* pCFrame = nullptr;
-	if (pColorFrameReader->AcquireLatestFrame(&pCFrame) == S_OK)
-	{
-		pCFrame->CopyConvertedFrameDataToArray(uColorBufferSize, pColorBuffer, ColorImageFormat_Rgba);
-
-		pCFrame->Release();
-		pCFrame = nullptr;
-
-		bUpdated = true;
-	}
-
-	if (bUpdated)
-	{
-		pCoordinateMapper->MapColorFrameToCameraSpace(uDepthPointNum, pDepthBuffer, uColorPointNum, pCSPoints);
+		// redraw
 		glutPostRedisplay();
 	}
 }

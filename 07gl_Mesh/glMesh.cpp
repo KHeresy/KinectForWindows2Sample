@@ -104,7 +104,15 @@ void display()
 // glut idle function
 void idle()
 {
-	bool bUpdated = false;
+	// Read color data
+	IColorFrame* pCFrame = nullptr;
+	if (pColorFrameReader->AcquireLatestFrame(&pCFrame) == S_OK)
+	{
+		pCFrame->CopyConvertedFrameDataToArray(uColorBufferSize, pColorBuffer, ColorImageFormat_Rgba);
+
+		pCFrame->Release();
+		pCFrame = nullptr;
+	}
 
 	// Read depth data
 	IDepthFrame* pDFrame = nullptr;
@@ -115,27 +123,10 @@ void idle()
 		pDFrame->Release();
 		pDFrame = nullptr;
 
-		bUpdated = true;
-	}
-
-	// Read color data
-	IColorFrame* pCFrame = nullptr;
-	if (pColorFrameReader->AcquireLatestFrame(&pCFrame) == S_OK)
-	{
-		pCFrame->CopyConvertedFrameDataToArray(uColorBufferSize, pColorBuffer, ColorImageFormat_Rgba);
-
-		pCFrame->Release();
-		pCFrame = nullptr;
-
-		bUpdated = true;
-	}
-
-	if (bUpdated)
-	{
-		// map coordinate
+		// map to camera space
 		pCoordinateMapper->MapColorFrameToCameraSpace(uDepthPointNum, pDepthBuffer, uColorPointNum, pCSPoints);
 
-		// build triangle index
+		// build index array of triangles
 		uTriangles = 0;
 		for (int y = 0; y < iColorHeight - 1; ++y)
 		{
