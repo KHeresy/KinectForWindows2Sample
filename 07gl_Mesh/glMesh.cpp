@@ -1,5 +1,5 @@
 // Created by Heresy @ 2015/02/10
-// Blog Page: 
+// Blog Page: https://kheresy.wordpress.com/2015/02/11/k4w-v2-part-6-draw-with-opengl/
 // This sample is used to show Kinect data in triangles form.
 
 // Standard Library
