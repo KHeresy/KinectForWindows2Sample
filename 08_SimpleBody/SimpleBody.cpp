@@ -1,6 +1,6 @@
 // Created by Heresy @ 2015/02/25
 // Blog Page: 
-// This sample is used to read user joint nad output position to console.
+// This sample is used to read information of body joint nad output to console.
 
 // Standard Library
 #include <iostream>
@@ -10,12 +10,14 @@
 
 using namespace std;
 
+// output operator for CameraSpacePoint
 ostream& operator<<(ostream& rOS, const CameraSpacePoint& rPos )
 {
 	rOS << "(" << rPos.X << "/" << rPos.Y << "/" << rPos.Z << ")";
 	return rOS;
 }
 
+// output operator for Vector4
 ostream& operator<<(ostream& rOS, const Vector4& rVec)
 {
 	rOS << "(" << rVec.x << "/" << rVec.y << "/" << rVec.z << "/" << rVec.w << ")";
@@ -157,7 +159,7 @@ int main(int argc, char** argv)
 		}
 	}
 
-	//
+	// delete body data array
 	delete[] aBody;
 
 	// 3b. release frame reader
