@@ -17,7 +17,7 @@ using namespace std;
 
 void DrawLine(cv::Mat& rImg, const Joint& rJ1, const Joint& rJ2, ICoordinateMapper* pCMapper )
 {
-	if (rJ1.TrackingState == TrackingState_NotTracked && rJ2.TrackingState == TrackingState_NotTracked)
+	if (rJ1.TrackingState == TrackingState_NotTracked || rJ2.TrackingState == TrackingState_NotTracked)
 		return;
 
 	ColorSpacePoint ptJ1, ptJ2;
