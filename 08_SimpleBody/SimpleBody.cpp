@@ -121,27 +121,27 @@ int main(int argc, char** argv)
 
 						// output information
 						JointType eJointType = JointType::JointType_HandRight;
+						const Joint& rJointPos = aJoints[JointType::JointType_HandRight];
 
-						const Joint& rHeadPos = aJoints[eJointType];
-						cout << " > Head is ";
-						if (rHeadPos.TrackingState == TrackingState_NotTracked)
+						cout << " > Right Hand is ";
+						if (rJointPos.TrackingState == TrackingState_NotTracked)
 						{
 							cout << "not tracked" << endl;
 						}
 						else
 						{
-							if (rHeadPos.TrackingState == TrackingState_Inferred)
+							if (rJointPos.TrackingState == TrackingState_Inferred)
 							{
 								cout << "inferred ";
 							}
-							else if (rHeadPos.TrackingState == TrackingState_Tracked)
+							else if (rJointPos.TrackingState == TrackingState_Tracked)
 							{
 								cout << "tracked ";
 							}
 
-							const JointOrientation& rHeadOri = aOrientations[eJointType];
+							const JointOrientation& rJointOri = aOrientations[eJointType];
 
-							cout << "at " << rHeadPos.Position << ",\n\t orientation: " << rHeadOri.Orientation << endl;
+							cout << "at " << rJointPos.Position << ",\n\t orientation: " << rJointOri.Orientation << endl;
 						}
 					}
 				}
