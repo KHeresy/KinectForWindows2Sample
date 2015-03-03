@@ -121,7 +121,8 @@ int main(int argc, char** argv)
 
 						// output information
 						JointType eJointType = JointType::JointType_HandRight;
-						const Joint& rJointPos = aJoints[JointType::JointType_HandRight];
+						const Joint& rJointPos = aJoints[eJointType];
+						const JointOrientation& rJointOri = aOrientations[eJointType];
 
 						cout << " > Right Hand is ";
 						if (rJointPos.TrackingState == TrackingState_NotTracked)
@@ -138,8 +139,6 @@ int main(int argc, char** argv)
 							{
 								cout << "tracked ";
 							}
-
-							const JointOrientation& rJointOri = aOrientations[eJointType];
 
 							cout << "at " << rJointPos.Position << ",\n\t orientation: " << rJointOri.Orientation << endl;
 						}
