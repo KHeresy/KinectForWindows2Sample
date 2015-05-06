@@ -253,7 +253,7 @@ int main(int argc, char** argv)
 		}
 	}
 
-	// 2. Color related code
+	// 2. Body related code
 	cout << "Try to get body source" << endl;
 	{
 		// Get frame source
