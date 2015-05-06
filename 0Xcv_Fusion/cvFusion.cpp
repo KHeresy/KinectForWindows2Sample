@@ -4,6 +4,7 @@
 
 // Standard Library
 #include <iostream>
+#include <fstream>
 
 // OpenCV Header
 #include <opencv2/core.hpp>
@@ -29,6 +30,44 @@ void ResetReconstruction(INuiFusionReconstruction* pReconstruction, Matrix4* pMa
 	std::cout << "Reset Reconstruction" << std::endl;
 	SetIdentityMatrix(*pMat);
 	pReconstruction->ResetReconstruction(pMat, nullptr);
+}
+
+bool OutputSTL(INuiFusionMesh* pMesh)
+{
+	UINT	uVertexNum = pMesh->VertexCount(),
+			uIndexNum = pMesh->TriangleVertexIndexCount();
+	std::cout << "Build result: " << uVertexNum << " vertices and " << uIndexNum << " indeices" << std::endl;
+
+	// get vertex
+	const Vector3* pVertex = nullptr;
+	pMesh->GetVertices(&pVertex);
+
+	// get index
+	const int* pIndex = nullptr;
+	pMesh->GetTriangleIndices(&pIndex);
+
+	// output to file
+	std::ofstream OutFile("E:\\test.stl");
+	OutFile << "solid FusionResult\n";
+	for (UINT idx = 0; idx < uIndexNum; idx += 3)
+	{
+		const Vector3	&rP1 = pVertex[idx],
+						&rP2 = pVertex[idx+1],
+						&rP3 = pVertex[idx+2];
+		OutFile << "  facet normal 0 0 0\n";
+		OutFile << "    outer loop\n";
+		OutFile << "      vertex " << -rP1.x << " " << rP1.y << " " << rP1.z << "\n";
+		OutFile << "      vertex " << -rP2.x << " " << rP2.y << " " << rP2.z << "\n";
+		OutFile << "      vertex " << -rP3.x << " " << rP3.y << " " << rP3.z << "\n";
+		OutFile << "    endloop" << "\n";
+		OutFile << "  endfacet" << "\n";
+	}
+	OutFile << "endsolid FusionResult\n";
+	OutFile.close();
+
+	std::cout << "Done" << std::endl;
+
+	return true;
 }
 
 int main(int argc, char** argv)
@@ -190,7 +229,7 @@ int main(int argc, char** argv)
 					{
 						// Reconstruction Process
 						pReconstruction->GetCurrentWorldToCameraTransform(&worldToCameraTransform);
-						if (pReconstruction->ProcessFrame(pSmoothDepthFloatImageFrame, uIterationCount, uIntegrationWeight, nullptr, &worldToCameraTransform) == S_OK)
+						if (pReconstruction->ProcessFrame(pSmoothDepthFloatImageFrame, uIterationCount, uIntegrationWeight, nullptr, &worldToCameraTransform) != S_OK)
 						{
 							static int errorCount = 0;
 							errorCount++;
@@ -249,22 +288,8 @@ int main(int argc, char** argv)
 			INuiFusionMesh* pMesh = nullptr;
 			if (pReconstruction->CalculateMesh(1.0, &pMesh) == S_OK)
 			{
-				UINT	uVertexNum = pMesh->VertexCount(),
-						uIndexNum = pMesh->TriangleVertexIndexCount();
-				std::cout << "Build result: " << uVertexNum << " vertices and " << uIndexNum << " indeices" << std::endl;
-
-				// get vertex
-				const Vector3* pVertex = new Vector3[uVertexNum];
-				pMesh->GetVertices(&pVertex);
-
-				// get index
-				const int* pIndex = new int[uIndexNum];
-				pMesh->GetTriangleIndices(&pIndex);
-
-				// output
-
-				delete[] pVertex;
-				delete[] pIndex;
+				OutputSTL(pMesh);
+				pMesh->Release();
 			}
 		}
 	}
