@@ -17,7 +17,7 @@
     <ProjectGuid>{A68A4B3E-BF89-44CC-BC88-6A9267864BA8}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>My02_DepthWithOpenCV</RootNamespace>
-    <ProjectName>cv_Fusion</ProjectName>
+    <ProjectName>Fusion01cv_Fusion</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">

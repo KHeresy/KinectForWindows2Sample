@@ -27,9 +27,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "08cv_Body", "08cv_Body\cvBo
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "08gl_Body", "08gl_Body\glBody.vcxproj", "{2F29BF0D-459C-4A6C-B7AF-549D3A9848F8}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gl_FaceHD", "0Xgl_FaceHD\glFaceHD.vcxproj", "{7FAB88E8-EDB5-4175-BD0F-B094A101ACD0}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cv_Fusion", "0Xcv_Fusion\cvFusion.vcxproj", "{A68A4B3E-BF89-44CC-BC88-6A9267864BA8}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Fusion01cv_Fusion", "Fusion\01cv_Fusion\cvFusion.vcxproj", "{A68A4B3E-BF89-44CC-BC88-6A9267864BA8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -85,10 +83,6 @@ Global
 		{2F29BF0D-459C-4A6C-B7AF-549D3A9848F8}.Debug|Win32.Build.0 = Debug|Win32
 		{2F29BF0D-459C-4A6C-B7AF-549D3A9848F8}.Release|Win32.ActiveCfg = Release|Win32
 		{2F29BF0D-459C-4A6C-B7AF-549D3A9848F8}.Release|Win32.Build.0 = Release|Win32
-		{7FAB88E8-EDB5-4175-BD0F-B094A101ACD0}.Debug|Win32.ActiveCfg = Debug|Win32
-		{7FAB88E8-EDB5-4175-BD0F-B094A101ACD0}.Debug|Win32.Build.0 = Debug|Win32
-		{7FAB88E8-EDB5-4175-BD0F-B094A101ACD0}.Release|Win32.ActiveCfg = Release|Win32
-		{7FAB88E8-EDB5-4175-BD0F-B094A101ACD0}.Release|Win32.Build.0 = Release|Win32
 		{A68A4B3E-BF89-44CC-BC88-6A9267864BA8}.Debug|Win32.ActiveCfg = Debug|Win32
 		{A68A4B3E-BF89-44CC-BC88-6A9267864BA8}.Debug|Win32.Build.0 = Debug|Win32
 		{A68A4B3E-BF89-44CC-BC88-6A9267864BA8}.Release|Win32.ActiveCfg = Release|Win32
