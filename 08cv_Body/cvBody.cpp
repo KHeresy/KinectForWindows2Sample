@@ -1,5 +1,5 @@
 // Created by Heresy @ 2015/02/25
-// Blog Page: 
+// Blog Page: https://kheresy.wordpress.com/2015/04/10/k4w-v2-part-7a-draw-user-skeleton/
 // This sample is used to read information of body joint nad draw with OpenCV.
 
 // Standard Library
