@@ -29,6 +29,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "08gl_Body", "08gl_Body\glBo
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Fusion01cv_Fusion", "Fusion\01cv_Fusion\cvFusion.vcxproj", "{A68A4B3E-BF89-44CC-BC88-6A9267864BA8}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Fusion02cv_ColorFusion", "Fusion\02cv_ColorFusion\cvColorFusion.vcxproj", "{E451451C-5748-420C-B92A-2676D199FAAF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -141,6 +143,14 @@ Global
 		{A68A4B3E-BF89-44CC-BC88-6A9267864BA8}.Release|Win32.Build.0 = Release|Win32
 		{A68A4B3E-BF89-44CC-BC88-6A9267864BA8}.Release|x64.ActiveCfg = Release|x64
 		{A68A4B3E-BF89-44CC-BC88-6A9267864BA8}.Release|x64.Build.0 = Release|x64
+		{E451451C-5748-420C-B92A-2676D199FAAF}.Debug|Win32.ActiveCfg = Debug|Win32
+		{E451451C-5748-420C-B92A-2676D199FAAF}.Debug|Win32.Build.0 = Debug|Win32
+		{E451451C-5748-420C-B92A-2676D199FAAF}.Debug|x64.ActiveCfg = Debug|x64
+		{E451451C-5748-420C-B92A-2676D199FAAF}.Debug|x64.Build.0 = Debug|x64
+		{E451451C-5748-420C-B92A-2676D199FAAF}.Release|Win32.ActiveCfg = Release|Win32
+		{E451451C-5748-420C-B92A-2676D199FAAF}.Release|Win32.Build.0 = Release|Win32
+		{E451451C-5748-420C-B92A-2676D199FAAF}.Release|x64.ActiveCfg = Release|x64
+		{E451451C-5748-420C-B92A-2676D199FAAF}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
