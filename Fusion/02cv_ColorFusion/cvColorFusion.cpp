@@ -32,7 +32,7 @@ void ResetReconstruction(INuiFusionColorReconstruction* pReconstruction, Matrix4
 	pReconstruction->ResetReconstruction(pMat, nullptr);
 }
 
-bool OutputSTL(INuiFusionColorMesh* pMesh)
+bool OutputOBJ(INuiFusionColorMesh* pMesh)
 {
 	UINT	uVertexNum = pMesh->VertexCount(),
 			uIndexNum = pMesh->TriangleVertexIndexCount();
@@ -42,27 +42,31 @@ bool OutputSTL(INuiFusionColorMesh* pMesh)
 	const Vector3* pVertex = nullptr;
 	pMesh->GetVertices(&pVertex);
 
+	// get color
+	const int* pColor = nullptr;
+	pMesh->GetColors(&pColor);
+
 	// get index
 	const int* pIndex = nullptr;
 	pMesh->GetTriangleIndices(&pIndex);
 
 	// output to file
-	std::ofstream OutFile("E:\\test.stl");
-	OutFile << "solid FusionResult\n";
+	std::ofstream OutFile("E:\\test.obj");
+	OutFile << "# Vertex\n";
+	for (UINT uIdx = 0; uIdx < uVertexNum; ++uIdx)
+	{
+		const Vector3	&rVertex = pVertex[uIdx];
+		OutFile << "v " << rVertex.x << " " << rVertex.y << " " << rVertex.z << " ";
+		
+		const int& rColor = pColor[uIdx];
+		OutFile << float(rColor & 255) / 255.0f << " " << float((rColor >> 8) & 255) / 255.0f << " " << float(rColor >> 16 & 255) / 255.0f << "\n";
+	}
+
+	OutFile << "\n# Face index\n";
 	for (UINT idx = 0; idx < uIndexNum; idx += 3)
 	{
-		const Vector3	&rP1 = pVertex[idx],
-						&rP2 = pVertex[idx+1],
-						&rP3 = pVertex[idx+2];
-		OutFile << "  facet normal 0 0 0\n";
-		OutFile << "    outer loop\n";
-		OutFile << "      vertex " << -rP1.x << " " << rP1.y << " " << rP1.z << "\n";
-		OutFile << "      vertex " << -rP2.x << " " << rP2.y << " " << rP2.z << "\n";
-		OutFile << "      vertex " << -rP3.x << " " << rP3.y << " " << rP3.z << "\n";
-		OutFile << "    endloop" << "\n";
-		OutFile << "  endfacet" << "\n";
+		OutFile << "f " << pIndex[idx]+1 << " " << pIndex[idx + 1]+1 << " " << pIndex[idx+2]+1 << "\n";
 	}
-	OutFile << "endsolid FusionResult\n";
 	OutFile.close();
 
 	std::cout << "Done" << std::endl;
@@ -190,7 +194,7 @@ int main(int argc, char** argv)
 	#pragma region Kinect Fusion Code
 	// Volume size and resolution configuration
 	NUI_FUSION_RECONSTRUCTION_PARAMETERS mResolution;
-	mResolution.voxelsPerMeter = 16;
+	mResolution.voxelsPerMeter = 128;
 	mResolution.voxelCountX = 256;
 	mResolution.voxelCountY = 256;
 	mResolution.voxelCountZ = 256;
@@ -377,7 +381,7 @@ int main(int argc, char** argv)
 			INuiFusionColorMesh* pMesh = nullptr;
 			if (pReconstruction->CalculateMesh(1.0, &pMesh) == S_OK)
 			{
-				OutputSTL(pMesh);
+				OutputOBJ(pMesh);
 				pMesh->Release();
 			}
 		}
