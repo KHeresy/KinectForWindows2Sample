@@ -21,7 +21,7 @@ bool OutputSTL(INuiFusionMesh* pMesh)
 {
 	UINT	uVertexNum = pMesh->VertexCount(),
 			uIndexNum = pMesh->TriangleVertexIndexCount();
-	std::cout << "Build result: " << uVertexNum << " vertices and " << uIndexNum << " indeices" << std::endl;
+	cout << "Build result: " << uVertexNum << " vertices and " << uIndexNum << " indeices" << endl;
 
 	// get vertex
 	const Vector3* pVertex = nullptr;
@@ -32,7 +32,7 @@ bool OutputSTL(INuiFusionMesh* pMesh)
 	pMesh->GetTriangleIndices(&pIndex);
 
 	// output to file
-	std::ofstream OutFile("E:\\test.stl");
+	ofstream OutFile("E:\\test.stl");
 	OutFile << "solid FusionResult\n";
 	for (UINT idx = 0; idx < uIndexNum; idx += 3)
 	{
@@ -50,7 +50,7 @@ bool OutputSTL(INuiFusionMesh* pMesh)
 	OutFile << "endsolid FusionResult\n";
 	OutFile.close();
 
-	std::cout << "Done" << std::endl;
+	cout << "Done" << endl;
 
 	return true;
 }
@@ -129,7 +129,7 @@ int main(int argc, char** argv)
 	INuiFusionReconstruction* pReconstruction = nullptr;
 	if (NuiFusionCreateReconstruction(&mResolution, NUI_FUSION_RECONSTRUCTION_PROCESSOR_TYPE_AMP, -1, nullptr, &pReconstruction) != S_OK)
 	{
-		std::cerr << "Kinect Fusion object create failed" << std::endl;
+		cerr << "Kinect Fusion object create failed" << endl;
 		return -1;
 	}
 
@@ -138,7 +138,7 @@ int main(int argc, char** argv)
 	NUI_FUSION_IMAGE_FRAME	*pFloatDepthFrame = nullptr;
 	if (NuiFusionCreateImageFrame(NUI_FUSION_IMAGE_TYPE_FLOAT, iWidth, iHeight, nullptr, &pFloatDepthFrame)!= S_OK)
 	{
-		std::cerr << "Error : NuiFusionCreateImageFrame( FLOAT )" << std::endl;
+		cerr << "Error : NuiFusionCreateImageFrame( FLOAT )" << endl;
 		return -1;
 	}
 
@@ -146,7 +146,7 @@ int main(int argc, char** argv)
 	NUI_FUSION_IMAGE_FRAME	*pSmoothDepthFrame = nullptr;
 	if (NuiFusionCreateImageFrame(NUI_FUSION_IMAGE_TYPE_FLOAT, iWidth, iHeight, nullptr, &pSmoothDepthFrame) != S_OK)
 	{
-		std::cerr << "Error : NuiFusionCreateImageFrame( FLOAT )" << std::endl;
+		cerr << "Error : NuiFusionCreateImageFrame( FLOAT )" << endl;
 		return -1;
 	}
 	#pragma endregion
@@ -159,7 +159,7 @@ int main(int argc, char** argv)
 	NUI_FUSION_IMAGE_FRAME	*pPointCloudFrame = nullptr;
 	if (NuiFusionCreateImageFrame(NUI_FUSION_IMAGE_TYPE_POINT_CLOUD, iImgWidth, iImgHeight, nullptr, &pPointCloudFrame) != S_OK)
 	{
-		std::cerr << "Error : NuiFusionCreateImageFrame( POINT_CLOUD )" << std::endl;
+		cerr << "Error : NuiFusionCreateImageFrame( POINT_CLOUD )" << endl;
 		return -1;
 	}
 
@@ -167,14 +167,14 @@ int main(int argc, char** argv)
 	NUI_FUSION_IMAGE_FRAME	*pSurfaceFrame = nullptr;
 	if (NuiFusionCreateImageFrame(NUI_FUSION_IMAGE_TYPE_COLOR, iImgWidth, iImgHeight, nullptr, &pSurfaceFrame) != S_OK)
 	{
-		std::cerr << "Error : NuiFusionCreateImageFrame( COLOR )" << std::endl;
+		cerr << "Error : NuiFusionCreateImageFrame( COLOR )" << endl;
 		return -1;
 	}
 
 	// Normal
 	NUI_FUSION_IMAGE_FRAME	*pNormalFrame = nullptr;
 	if (NuiFusionCreateImageFrame(NUI_FUSION_IMAGE_TYPE_COLOR, iImgWidth, iImgHeight, nullptr, &pNormalFrame) != S_OK){
-		std::cerr << "Error : NuiFusionCreateImageFrame( COLOR )" << std::endl;
+		cerr << "Error : NuiFusionCreateImageFrame( COLOR )" << endl;
 		return -1;
 	}
 	#pragma endregion
@@ -220,20 +220,17 @@ int main(int argc, char** argv)
 						}
 
 						// Calculate Point Cloud
-						if (pReconstruction->CalculatePointCloud(pPointCloudFrame, &mCameraMatrix) != S_OK)
+						if (pReconstruction->CalculatePointCloud(pPointCloudFrame, &mCameraMatrix) == S_OK)
 						{
-							std::cerr << "Error : CalculatePointCloud" << std::endl;
-							return -1;
-						}
+							// Shading Point Clouid 
+							if (NuiFusionShadePointCloud(pPointCloudFrame, &mCameraMatrix, &mColorTransform, pSurfaceFrame, pNormalFrame) == S_OK)
+							{
+								cv::Mat surfaceMat(iHeight, iWidth, CV_8UC4, pSurfaceFrame->pFrameBuffer->pBits);
+								cv::Mat normalMat(iHeight, iWidth, CV_8UC4, pNormalFrame->pFrameBuffer->pBits);
 
-						// Shading Point Clouid 
-						if (NuiFusionShadePointCloud(pPointCloudFrame, &mCameraMatrix, &mColorTransform, pSurfaceFrame, pNormalFrame) == S_OK)
-						{
-							cv::Mat surfaceMat(iHeight, iWidth, CV_8UC4, pSurfaceFrame->pFrameBuffer->pBits);
-							cv::Mat normalMat(iHeight, iWidth, CV_8UC4, pNormalFrame->pFrameBuffer->pBits);
-
-							cv::imshow("Surface", surfaceMat);
-							cv::imshow("Normal", normalMat);
+								cv::imshow("Surface", surfaceMat);
+								cv::imshow("Normal", normalMat);
+							}
 						}
 					}
 				}
@@ -250,7 +247,7 @@ int main(int argc, char** argv)
 		}
 		else if (key == 'r')
 		{
-			std::cout << "Reset Reconstruction" << std::endl;
+			cout << "Reset Reconstruction" << endl;
 			pReconstruction->ResetReconstruction(nullptr, nullptr);
 		}
 		else if (key == 'o')
@@ -277,7 +274,6 @@ int main(int argc, char** argv)
 
 	// Close and Release Sensor
 	pSensor->Close();
-	cout << "Release sensor" << endl;
 	pSensor->Release();
 	pSensor = nullptr;
 	#pragma endregion
