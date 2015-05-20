@@ -1,6 +1,6 @@
-// Created by Heresy @ 2015/02/25
+// Created by Heresy @ 2015/05/20
 // Blog Page: 
-// This sample is used to read information of body joint nad draw with OpenCV.
+// This sample is used to use Kinect Fusion to scan the scene and output a STL file.
 
 // Standard Library
 #include <iostream>
@@ -85,8 +85,6 @@ int main(int argc, char** argv)
 	IDepthFrameReader* pDepthFrameReader = nullptr;
 	int		iWidth = 0;
 	int		iHeight = 0;
-	UINT	uDepthBufferSize;
-	cv::Mat	mDepthImg;
 	{
 		// Get depth frame source
 		cout << "Try to get depth source" << endl;
@@ -116,10 +114,6 @@ int main(int argc, char** argv)
 			cout << "Release frame source" << endl;
 			pFrameSource->Release();
 			pFrameSource = nullptr;
-
-			// Prepare OpenCV data
-			mDepthImg = cv::Mat(iHeight, iWidth, CV_16UC1);
-			uDepthBufferSize = iHeight * iWidth * sizeof(UINT16);
 		}
 		else
 		{
@@ -145,46 +139,51 @@ int main(int argc, char** argv)
 		return -1;
 	}
 
-	// Create Image Frame
-	NUI_FUSION_IMAGE_FRAME	*pDepthFloatImageFrame = nullptr,
-							*pSmoothDepthFloatImageFrame = nullptr,
-							*pPointCloudImageFrame = nullptr,
-							*pSurfaceImageFrame = nullptr,
-							*pNormalImageFrame = nullptr;
-
+	#pragma region Create depth data image frame
 	// Depth
-	if (NuiFusionCreateImageFrame(NUI_FUSION_IMAGE_TYPE_FLOAT, iWidth, iHeight, nullptr, &pDepthFloatImageFrame)!= S_OK)
+	NUI_FUSION_IMAGE_FRAME	*pFloatDepthFrame = nullptr;
+	if (NuiFusionCreateImageFrame(NUI_FUSION_IMAGE_TYPE_FLOAT, iWidth, iHeight, nullptr, &pFloatDepthFrame)!= S_OK)
 	{
 		std::cerr << "Error : NuiFusionCreateImageFrame( FLOAT )" << std::endl;
 		return -1;
 	}
 
 	// SmoothDepth
-	if (NuiFusionCreateImageFrame(NUI_FUSION_IMAGE_TYPE_FLOAT, iWidth, iHeight, nullptr, &pSmoothDepthFloatImageFrame) != S_OK)
+	NUI_FUSION_IMAGE_FRAME	*pSmoothDepthFrame = nullptr;
+	if (NuiFusionCreateImageFrame(NUI_FUSION_IMAGE_TYPE_FLOAT, iWidth, iHeight, nullptr, &pSmoothDepthFrame) != S_OK)
 	{
 		std::cerr << "Error : NuiFusionCreateImageFrame( FLOAT )" << std::endl;
 		return -1;
 	}
+	#pragma endregion
+
+	#pragma region Create Image Frame for display
+	int iImgWidth = iWidth,
+		iImgHeight = iHeight;
 
 	// Point Cloud
-	if (NuiFusionCreateImageFrame(NUI_FUSION_IMAGE_TYPE_POINT_CLOUD, iWidth, iHeight, nullptr, &pPointCloudImageFrame) != S_OK)
+	NUI_FUSION_IMAGE_FRAME	*pPointCloudFrame = nullptr;
+	if (NuiFusionCreateImageFrame(NUI_FUSION_IMAGE_TYPE_POINT_CLOUD, iImgWidth, iImgHeight, nullptr, &pPointCloudFrame) != S_OK)
 	{
 		std::cerr << "Error : NuiFusionCreateImageFrame( POINT_CLOUD )" << std::endl;
 		return -1;
 	}
 
 	// Surface
-	if (NuiFusionCreateImageFrame(NUI_FUSION_IMAGE_TYPE_COLOR, iWidth, iHeight, nullptr, &pSurfaceImageFrame) != S_OK)
+	NUI_FUSION_IMAGE_FRAME	*pSurfaceFrame = nullptr;
+	if (NuiFusionCreateImageFrame(NUI_FUSION_IMAGE_TYPE_COLOR, iImgWidth, iImgHeight, nullptr, &pSurfaceFrame) != S_OK)
 	{
 		std::cerr << "Error : NuiFusionCreateImageFrame( COLOR )" << std::endl;
 		return -1;
 	}
 
 	// Normal
-	if (NuiFusionCreateImageFrame(NUI_FUSION_IMAGE_TYPE_COLOR, iWidth, iHeight, nullptr, &pNormalImageFrame) != S_OK){
+	NUI_FUSION_IMAGE_FRAME	*pNormalFrame = nullptr;
+	if (NuiFusionCreateImageFrame(NUI_FUSION_IMAGE_TYPE_COLOR, iImgWidth, iImgHeight, nullptr, &pNormalFrame) != S_OK){
 		std::cerr << "Error : NuiFusionCreateImageFrame( COLOR )" << std::endl;
 		return -1;
 	}
+	#pragma endregion
 
 	#pragma endregion
 
@@ -192,12 +191,7 @@ int main(int argc, char** argv)
 	cv::namedWindow("Surface");
 	cv::namedWindow("Normal");
 
-	float	fDepthMin = NUI_FUSION_DEFAULT_MINIMUM_DEPTH,
-			fDepthMax = NUI_FUSION_DEFAULT_MAXIMUM_DEPTH;
-	USHORT	uIterationCount = NUI_FUSION_DEFAULT_ALIGN_ITERATION_COUNT,
-			uIntegrationWeight = NUI_FUSION_DEFAULT_INTEGRATION_WEIGHT;
 	Matrix4 worldToCameraTransform;
-
 	while (true)
 	{
 		// Get last frame
@@ -210,14 +204,14 @@ int main(int argc, char** argv)
 			if (pDepthFrame->AccessUnderlyingBuffer(&uBufferSize, &pDepthBuffer)==S_OK)
 			{
 				// Convert to Kinect Fusion format
-				if (pReconstruction->DepthToDepthFloatFrame(pDepthBuffer, uDepthBufferSize, pDepthFloatImageFrame, fDepthMin, fDepthMax, true) == S_OK)
+				if (pReconstruction->DepthToDepthFloatFrame(pDepthBuffer, uBufferSize * sizeof(UINT16), pFloatDepthFrame, NUI_FUSION_DEFAULT_MINIMUM_DEPTH, NUI_FUSION_DEFAULT_MAXIMUM_DEPTH, true) == S_OK)
 				{
 					// smoothing
-					if (pReconstruction->SmoothDepthFloatFrame(pDepthFloatImageFrame, pSmoothDepthFloatImageFrame, 1, 0.04f) == S_OK)
+					if (pReconstruction->SmoothDepthFloatFrame(pFloatDepthFrame, pSmoothDepthFrame, NUI_FUSION_DEFAULT_SMOOTHING_KERNEL_WIDTH, NUI_FUSION_DEFAULT_SMOOTHING_DISTANCE_THRESHOLD) == S_OK)
 					{
 						// Reconstruction Process
 						pReconstruction->GetCurrentWorldToCameraTransform(&worldToCameraTransform);
-						if (pReconstruction->ProcessFrame(pSmoothDepthFloatImageFrame, uIterationCount, uIntegrationWeight, nullptr, &worldToCameraTransform) != S_OK)
+						if (pReconstruction->ProcessFrame(pSmoothDepthFrame, NUI_FUSION_DEFAULT_ALIGN_ITERATION_COUNT, NUI_FUSION_DEFAULT_INTEGRATION_WEIGHT, nullptr, &worldToCameraTransform) != S_OK)
 						{
 							static int errorCount = 0;
 							errorCount++;
@@ -229,7 +223,7 @@ int main(int argc, char** argv)
 						}
 
 						// Calculate Point Cloud
-						if( pReconstruction->CalculatePointCloud(pPointCloudImageFrame, &worldToCameraTransform) != S_OK )
+						if( pReconstruction->CalculatePointCloud(pPointCloudFrame, &worldToCameraTransform) != S_OK )
 						{
 							std::cerr << "Error : CalculatePointCloud" << std::endl;
 							return -1;
@@ -245,10 +239,10 @@ int main(int argc, char** argv)
 						worldToBGRTransform.M43 = 0.0f;
 						worldToBGRTransform.M44 = 1.0f;
 
-						if( NuiFusionShadePointCloud(pPointCloudImageFrame, &worldToCameraTransform, &worldToBGRTransform, pSurfaceImageFrame, pNormalImageFrame) == S_OK )
+						if( NuiFusionShadePointCloud(pPointCloudFrame, &worldToCameraTransform, &worldToBGRTransform, pSurfaceFrame, pNormalFrame) == S_OK )
 						{
-							cv::Mat surfaceMat(iHeight, iWidth, CV_8UC4, pSurfaceImageFrame->pFrameBuffer->pBits);
-							cv::Mat normalMat(iHeight, iWidth, CV_8UC4, pNormalImageFrame->pFrameBuffer->pBits);
+							cv::Mat surfaceMat(iHeight, iWidth, CV_8UC4, pSurfaceFrame->pFrameBuffer->pBits);
+							cv::Mat normalMat(iHeight, iWidth, CV_8UC4, pNormalFrame->pFrameBuffer->pBits);
 
 							//cv::imshow("Depth", depthMat);
 							cv::imshow("Surface", surfaceMat);
@@ -283,11 +277,11 @@ int main(int argc, char** argv)
 	}
 
 	#pragma region Release resource
-	NuiFusionReleaseImageFrame(pDepthFloatImageFrame);
-	NuiFusionReleaseImageFrame(pSmoothDepthFloatImageFrame);
-	NuiFusionReleaseImageFrame(pPointCloudImageFrame);
-	NuiFusionReleaseImageFrame(pSurfaceImageFrame);
-	NuiFusionReleaseImageFrame(pNormalImageFrame);
+	NuiFusionReleaseImageFrame(pFloatDepthFrame);
+	NuiFusionReleaseImageFrame(pSmoothDepthFrame);
+	NuiFusionReleaseImageFrame(pPointCloudFrame);
+	NuiFusionReleaseImageFrame(pSurfaceFrame);
+	NuiFusionReleaseImageFrame(pNormalFrame);
 
 	// release color frame reader
 	pDepthFrameReader->Release();
