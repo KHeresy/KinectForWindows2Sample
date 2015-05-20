@@ -17,17 +17,11 @@
 
 using namespace std;
 
-void ResetReconstruction(INuiFusionColorReconstruction* pReconstruction)
-{
-	std::cout << "Reset Reconstruction" << std::endl;
-	pReconstruction->ResetReconstruction(nullptr , nullptr);
-}
-
 bool OutputOBJ(INuiFusionColorMesh* pMesh)
 {
 	UINT	uVertexNum = pMesh->VertexCount(),
 			uIndexNum = pMesh->TriangleVertexIndexCount();
-	std::cout << "Build result: " << uVertexNum << " vertices and " << uIndexNum << " indeices" << std::endl;
+	cout << "Build result: " << uVertexNum << " vertices and " << uIndexNum << " indeices" << endl;
 
 	// get vertex
 	const Vector3* pVertex = nullptr;
@@ -42,7 +36,7 @@ bool OutputOBJ(INuiFusionColorMesh* pMesh)
 	pMesh->GetTriangleIndices(&pIndex);
 
 	// output to file
-	std::ofstream OutFile("E:\\test.obj");
+	ofstream OutFile("E:\\test.obj");
 	OutFile << "# Vertex\n";
 	for (UINT uIdx = 0; uIdx < uVertexNum; ++uIdx)
 	{
@@ -60,7 +54,7 @@ bool OutputOBJ(INuiFusionColorMesh* pMesh)
 	}
 	OutFile.close();
 
-	std::cout << "Done" << std::endl;
+	cout << "Done" << endl;
 
 	return true;
 }
@@ -85,16 +79,12 @@ int main(int argc, char** argv)
 		return -1;
 	}
 
-	// Depth Related code
-	IDepthFrameReader* pDepthFrameReader = nullptr;
+	// Color related data
 	IColorFrameReader* pColorFrameReader = nullptr;
-	int		iDepthWidth = 0;
-	int		iDepthHeight = 0;
-	UINT	uDepthBufferSize = 0;
-	UINT	uDepthPointNum = 0;
 	int		iColorWidth = 0;
 	int		iColorHeight = 0;
 	UINT	uColorBufferSize = 0;
+	BYTE*	pColorData = nullptr;
 
 	// Get color frame source
 	{
@@ -110,6 +100,7 @@ int main(int argc, char** argv)
 				pFrameDescription->get_Width(&iColorWidth);
 				pFrameDescription->get_Height(&iColorHeight);
 				uColorBufferSize = iColorWidth * iColorHeight * 4 * sizeof(BYTE);
+				pColorData = new BYTE[iColorWidth * iColorHeight * 4];
 			}
 			pFrameDescription->Release();
 			pFrameDescription = nullptr;
@@ -134,6 +125,14 @@ int main(int argc, char** argv)
 		}
 	}
 
+	// Depth related data
+	IDepthFrameReader* pDepthFrameReader = nullptr;
+	int		iDepthWidth = 0;
+	int		iDepthHeight = 0;
+	UINT	uDepthBufferSize = 0;
+	UINT	uDepthPointNum = 0;
+	ColorSpacePoint* pColorPoint = nullptr;
+
 	// Get depth frame source
 	{
 		cout << "Try to get depth source" << endl;
@@ -149,6 +148,7 @@ int main(int argc, char** argv)
 				pFrameDescription->get_Height(&iDepthHeight);
 				uDepthPointNum = iDepthHeight * iDepthWidth;
 				uDepthBufferSize = uDepthPointNum * sizeof(UINT16);
+				pColorPoint = new ColorSpacePoint[uDepthPointNum];
 			}
 			pFrameDescription->Release();
 			pFrameDescription = nullptr;
@@ -185,7 +185,7 @@ int main(int argc, char** argv)
 	#pragma region Kinect Fusion Code
 	// Volume size and resolution configuration
 	NUI_FUSION_RECONSTRUCTION_PARAMETERS mResolution;
-	mResolution.voxelsPerMeter = 128;
+	mResolution.voxelsPerMeter = 64;
 	mResolution.voxelCountX = 256;
 	mResolution.voxelCountY = 256;
 	mResolution.voxelCountZ = 256;
@@ -194,58 +194,63 @@ int main(int argc, char** argv)
 	INuiFusionColorReconstruction* pReconstruction = nullptr;
 	if (NuiFusionCreateColorReconstruction(&mResolution, NUI_FUSION_RECONSTRUCTION_PROCESSOR_TYPE_AMP, -1, nullptr, &pReconstruction) != S_OK)
 	{
-		std::cerr << "Kinect Fusion object create failed" << std::endl;
+		cerr << "Kinect Fusion object create failed" << endl;
 		return -1;
 	}
 
-	// Create Image Frame
-	NUI_FUSION_IMAGE_FRAME	*pColorImageFrame = nullptr,
-							*pDepthFloatImageFrame = nullptr,
-							*pSmoothDepthFloatImageFrame = nullptr,
-							*pPointCloudImageFrame = nullptr,
-							*pSurfaceImageFrame = nullptr,
-							*pNormalImageFrame = nullptr;
-
+	#pragma region Image frame from data source
 	// Color
+	NUI_FUSION_IMAGE_FRAME	*pColorImageFrame = nullptr;
 	if (NuiFusionCreateImageFrame(NUI_FUSION_IMAGE_TYPE_COLOR, iDepthWidth, iDepthHeight, nullptr, &pColorImageFrame) != S_OK)
 	{
-		std::cerr << "Error : NuiFusionCreateImageFrame( COLOR )" << std::endl;
+		cerr << "Error : NuiFusionCreateImageFrame( COLOR )" << endl;
 		return -1;
 	}
 
 	// Depth
-	if (NuiFusionCreateImageFrame(NUI_FUSION_IMAGE_TYPE_FLOAT, iDepthWidth, iDepthHeight, nullptr, &pDepthFloatImageFrame)!= S_OK)
+	NUI_FUSION_IMAGE_FRAME	*pFloatDepthFrame = nullptr;
+	if (NuiFusionCreateImageFrame(NUI_FUSION_IMAGE_TYPE_FLOAT, iDepthWidth, iDepthHeight, nullptr, &pFloatDepthFrame)!= S_OK)
 	{
-		std::cerr << "Error : NuiFusionCreateImageFrame( FLOAT )" << std::endl;
+		cerr << "Error : NuiFusionCreateImageFrame( FLOAT )" << endl;
 		return -1;
 	}
 
 	// SmoothDepth
-	if (NuiFusionCreateImageFrame(NUI_FUSION_IMAGE_TYPE_FLOAT, iDepthWidth, iDepthHeight, nullptr, &pSmoothDepthFloatImageFrame) != S_OK)
+	NUI_FUSION_IMAGE_FRAME	*pSmoothDepthFrame = nullptr;
+	if (NuiFusionCreateImageFrame(NUI_FUSION_IMAGE_TYPE_FLOAT, iDepthWidth, iDepthHeight, nullptr, &pSmoothDepthFrame) != S_OK)
 	{
-		std::cerr << "Error : NuiFusionCreateImageFrame( FLOAT )" << std::endl;
+		cerr << "Error : NuiFusionCreateImageFrame( FLOAT )" << endl;
 		return -1;
 	}
+	#pragma endregion
+	
+	#pragma region Create Image Frame for display
+	int iImgWidth	= iDepthWidth,
+		iImgHeight	= iDepthHeight;
 
 	// Point Cloud
-	if (NuiFusionCreateImageFrame(NUI_FUSION_IMAGE_TYPE_POINT_CLOUD, iDepthWidth, iDepthHeight, nullptr, &pPointCloudImageFrame) != S_OK)
+	NUI_FUSION_IMAGE_FRAME	*pPointCloudFrame = nullptr;
+	if (NuiFusionCreateImageFrame(NUI_FUSION_IMAGE_TYPE_POINT_CLOUD, iImgWidth, iImgHeight, nullptr, &pPointCloudFrame) != S_OK)
 	{
-		std::cerr << "Error : NuiFusionCreateImageFrame( POINT_CLOUD )" << std::endl;
+		cerr << "Error : NuiFusionCreateImageFrame( POINT_CLOUD )" << endl;
 		return -1;
 	}
 
 	// Surface
-	if (NuiFusionCreateImageFrame(NUI_FUSION_IMAGE_TYPE_COLOR, iDepthWidth, iDepthHeight, nullptr, &pSurfaceImageFrame) != S_OK)
+	NUI_FUSION_IMAGE_FRAME	*pSurfaceFrame = nullptr;
+	if (NuiFusionCreateImageFrame(NUI_FUSION_IMAGE_TYPE_COLOR, iImgWidth, iImgHeight, nullptr, &pSurfaceFrame) != S_OK)
 	{
-		std::cerr << "Error : NuiFusionCreateImageFrame( COLOR )" << std::endl;
+		cerr << "Error : NuiFusionCreateImageFrame( COLOR )" << endl;
 		return -1;
 	}
 
 	// Normal
-	if (NuiFusionCreateImageFrame(NUI_FUSION_IMAGE_TYPE_COLOR, iDepthWidth, iDepthHeight, nullptr, &pNormalImageFrame) != S_OK){
-		std::cerr << "Error : NuiFusionCreateImageFrame( COLOR )" << std::endl;
+	NUI_FUSION_IMAGE_FRAME	*pNormalFrame = nullptr;
+	if (NuiFusionCreateImageFrame(NUI_FUSION_IMAGE_TYPE_COLOR, iImgWidth, iImgHeight, nullptr, &pNormalFrame) != S_OK){
+		cerr << "Error : NuiFusionCreateImageFrame( COLOR )" << endl;
 		return -1;
 	}
+	#pragma endregion
 
 	#pragma endregion
 
@@ -253,18 +258,19 @@ int main(int argc, char** argv)
 	cv::namedWindow("Surface");
 	cv::namedWindow("Normal");
 
-	float	fDepthMin = NUI_FUSION_DEFAULT_MINIMUM_DEPTH,
-			fDepthMax = NUI_FUSION_DEFAULT_MAXIMUM_DEPTH;
-	USHORT	uIterationCount = NUI_FUSION_DEFAULT_ALIGN_ITERATION_COUNT,
-			uIntegrationWeight = NUI_FUSION_DEFAULT_INTEGRATION_WEIGHT;
-	float	fColorInregrationAngle = NUI_FUSION_DEFAULT_COLOR_INTEGRATION_OF_ALL_ANGLES;
-	Matrix4 worldToCameraTransform;
-
-	ColorSpacePoint* pColorPoint = new ColorSpacePoint[uDepthPointNum];
-	BYTE* pColorData = new BYTE[iColorWidth * iColorHeight * 4];
+	Matrix4 mCameraMatrix;
+	Matrix4 mColorTransform = { 0.0f };
+	mColorTransform.M11 = mResolution.voxelsPerMeter / mResolution.voxelCountX;
+	mColorTransform.M22 = mResolution.voxelsPerMeter / mResolution.voxelCountY;
+	mColorTransform.M33 = mResolution.voxelsPerMeter / mResolution.voxelCountZ;
+	mColorTransform.M41 = 0.5f;
+	mColorTransform.M42 = 0.5f;
+	mColorTransform.M43 = 0.0f;
+	mColorTransform.M44 = 1.0f;
 
 	while (true)
 	{
+		#pragma region Read new data and convert to NUI_FUSION_IMAGE_FRAME
 		// Get last depth frame
 		IDepthFrame* pDepthFrame = nullptr;
 		if (pDepthFrameReader->AcquireLatestFrame(&pDepthFrame) == S_OK)
@@ -274,18 +280,19 @@ int main(int argc, char** argv)
 			UINT16*	pDepthBuffer = nullptr;
 			if (pDepthFrame->AccessUnderlyingBuffer(&uBufferSize, &pDepthBuffer) == S_OK)
 			{
-				// build color mapping table
+				// build color-depth mapping table
 				if (pMapper->MapDepthFrameToColorSpace(uDepthPointNum, pDepthBuffer, uDepthPointNum, pColorPoint) != S_OK)
 				{
 					cerr << "Can't map depth to color" << endl;
 				}
 
 				// Convert to Kinect Fusion format
-				if (pReconstruction->DepthToDepthFloatFrame(pDepthBuffer, uDepthBufferSize, pDepthFloatImageFrame, fDepthMin, fDepthMax, true) == S_OK)
+				if (pReconstruction->DepthToDepthFloatFrame(pDepthBuffer, uDepthBufferSize, pFloatDepthFrame, NUI_FUSION_DEFAULT_MINIMUM_DEPTH, NUI_FUSION_DEFAULT_MAXIMUM_DEPTH, true) == S_OK)
 				{
 					// smoothing
-					if (pReconstruction->SmoothDepthFloatFrame(pDepthFloatImageFrame, pSmoothDepthFloatImageFrame, 1, 0.04f) == S_OK)
+					if (pReconstruction->SmoothDepthFloatFrame(pFloatDepthFrame, pSmoothDepthFrame, NUI_FUSION_DEFAULT_SMOOTHING_KERNEL_WIDTH, NUI_FUSION_DEFAULT_SMOOTHING_DISTANCE_THRESHOLD) != S_OK)
 					{
+						cerr << "Dpeth Frame smooth failed" << endl;
 					}
 				}
 			}
@@ -299,60 +306,51 @@ int main(int argc, char** argv)
 			// read data
 			if (pColorFrame->CopyConvertedFrameDataToArray(uColorBufferSize, pColorData, ColorImageFormat_Rgba) == S_OK)
 			{
-				for (int i = 0; i < uDepthPointNum; ++i)
+				// fill the color image frame with color-depth mapping table
+				BYTE* pColorArray = pColorImageFrame->pFrameBuffer->pBits;
+				for (unsigned int i = 0; i < uDepthPointNum; ++i)
 				{
 					const ColorSpacePoint& rPt = pColorPoint[i];
 					if (rPt.X >= 0 && rPt.X < iColorWidth && rPt.Y >= 0 && rPt.Y < iColorHeight)
 					{
 						int idx = 4 * ( (int)rPt.X + iColorWidth * (int)rPt.Y );
-						pColorImageFrame->pFrameBuffer->pBits[4*i] = pColorData[idx];
-						pColorImageFrame->pFrameBuffer->pBits[4*i + 1] = pColorData[idx + 1];
-						pColorImageFrame->pFrameBuffer->pBits[4*i + 2] = pColorData[idx + 2];
-						pColorImageFrame->pFrameBuffer->pBits[4*i + 3] = pColorData[idx + 3];
+						pColorArray[4 * i] = pColorData[idx];
+						pColorArray[4 * i + 1] = pColorData[idx + 1];
+						pColorArray[4 * i + 2] = pColorData[idx + 2];
+						pColorArray[4 * i + 3] = pColorData[idx + 3];
+					}
+					else
+					{
+						pColorArray[4 * i] = 0;
+						pColorArray[4 * i + 1] = 0;
+						pColorArray[4 * i + 2] = 0;
+						pColorArray[4 * i + 3] = 0;
 					}
 				}
 			}
 			pColorFrame->Release();
 		}
+		#pragma endregion
 
 		// Reconstruction Process
-		pReconstruction->GetCurrentWorldToCameraTransform(&worldToCameraTransform);
-		if (pReconstruction->ProcessFrame(pSmoothDepthFloatImageFrame, pColorImageFrame, uIterationCount, uIntegrationWeight, fColorInregrationAngle, nullptr, &worldToCameraTransform) != S_OK)
+		pReconstruction->GetCurrentWorldToCameraTransform(&mCameraMatrix);
+		if (pReconstruction->ProcessFrame(pSmoothDepthFrame, pColorImageFrame, NUI_FUSION_DEFAULT_ALIGN_ITERATION_COUNT, NUI_FUSION_DEFAULT_INTEGRATION_WEIGHT, NUI_FUSION_DEFAULT_COLOR_INTEGRATION_OF_ALL_ANGLES, nullptr, &mCameraMatrix) != S_OK)
 		{
-			static int errorCount = 0;
-			errorCount++;
-			if (errorCount >= 100)
-			{
-				errorCount = 0;
-				ResetReconstruction(pReconstruction);
-			}
+			cerr << "Can't process this frame" << endl;
 		}
 
 		// Calculate Point Cloud
-		if (pReconstruction->CalculatePointCloud(pPointCloudImageFrame, pColorImageFrame, &worldToCameraTransform) != S_OK)
+		if (pReconstruction->CalculatePointCloud(pPointCloudFrame, pColorImageFrame, &mCameraMatrix) == S_OK)
 		{
-			std::cerr << "Error : CalculatePointCloud" << std::endl;
-			//return -1;
-		}
+			// Shading Point Clouid
+			if (NuiFusionShadePointCloud(pPointCloudFrame, &mCameraMatrix, &mColorTransform, pSurfaceFrame, pNormalFrame) == S_OK)
+			{
+				cv::Mat surfaceMat(iDepthHeight, iDepthWidth, CV_8UC4, pSurfaceFrame->pFrameBuffer->pBits);
+				cv::Mat normalMat(iDepthHeight, iDepthWidth, CV_8UC4, pNormalFrame->pFrameBuffer->pBits);
 
-		// Shading Point Clouid
-		Matrix4 worldToBGRTransform = { 0.0f };
-		worldToBGRTransform.M11 = mResolution.voxelsPerMeter / mResolution.voxelCountX;
-		worldToBGRTransform.M22 = mResolution.voxelsPerMeter / mResolution.voxelCountY;
-		worldToBGRTransform.M33 = mResolution.voxelsPerMeter / mResolution.voxelCountZ;
-		worldToBGRTransform.M41 = 0.5f;
-		worldToBGRTransform.M42 = 0.5f;
-		worldToBGRTransform.M43 = 0.0f;
-		worldToBGRTransform.M44 = 1.0f;
-
-		if (NuiFusionShadePointCloud(pPointCloudImageFrame, &worldToCameraTransform, &worldToBGRTransform, pSurfaceImageFrame, pNormalImageFrame) == S_OK)
-		{
-			cv::Mat surfaceMat(iDepthHeight, iDepthWidth, CV_8UC4, pSurfaceImageFrame->pFrameBuffer->pBits);
-			cv::Mat normalMat(iDepthHeight, iDepthWidth, CV_8UC4, pNormalImageFrame->pFrameBuffer->pBits);
-
-			//cv::imshow("Depth", depthMat);
-			cv::imshow("Surface", surfaceMat);
-			cv::imshow("Normal", normalMat);
+				cv::imshow("Surface", surfaceMat);
+				cv::imshow("Normal", normalMat);
+			}
 		}
 
 		int key = cv::waitKey(30);
@@ -362,12 +360,13 @@ int main(int argc, char** argv)
 		}
 		else if (key == 'r')
 		{
-			ResetReconstruction(pReconstruction);
+			cout << "Reset Reconstruction" << endl;
+			pReconstruction->ResetReconstruction(nullptr, nullptr);
 		}
 		else if (key == 'o')
 		{
 			INuiFusionColorMesh* pMesh = nullptr;
-			if (pReconstruction->CalculateMesh(1.0, &pMesh) == S_OK)
+			if (pReconstruction->CalculateMesh(1, &pMesh) == S_OK)
 			{
 				OutputOBJ(pMesh);
 				pMesh->Release();
@@ -380,11 +379,11 @@ int main(int argc, char** argv)
 	delete[] pColorData;
 
 	NuiFusionReleaseImageFrame(pColorImageFrame);
-	NuiFusionReleaseImageFrame(pDepthFloatImageFrame);
-	NuiFusionReleaseImageFrame(pSmoothDepthFloatImageFrame);
-	NuiFusionReleaseImageFrame(pPointCloudImageFrame);
-	NuiFusionReleaseImageFrame(pSurfaceImageFrame);
-	NuiFusionReleaseImageFrame(pNormalImageFrame);
+	NuiFusionReleaseImageFrame(pFloatDepthFrame);
+	NuiFusionReleaseImageFrame(pSmoothDepthFrame);
+	NuiFusionReleaseImageFrame(pPointCloudFrame);
+	NuiFusionReleaseImageFrame(pSurfaceFrame);
+	NuiFusionReleaseImageFrame(pNormalFrame);
 
 	// release frame reader
 	pDepthFrameReader->Release();
@@ -392,9 +391,11 @@ int main(int argc, char** argv)
 	pColorFrameReader->Release();
 	pColorFrameReader = nullptr;
 
+	pMapper->Release();
+	pMapper = nullptr;
+
 	// Close and Release Sensor
 	pSensor->Close();
-	cout << "Release sensor" << endl;
 	pSensor->Release();
 	pSensor = nullptr;
 	#pragma endregion
