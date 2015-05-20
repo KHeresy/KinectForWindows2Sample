@@ -17,12 +17,6 @@
 
 using namespace std;
 
-void ResetReconstruction(INuiFusionReconstruction* pReconstruction)
-{
-	std::cout << "Reset Reconstruction" << std::endl;
-	pReconstruction->ResetReconstruction(nullptr, nullptr);
-}
-
 bool OutputSTL(INuiFusionMesh* pMesh)
 {
 	UINT	uVertexNum = pMesh->VertexCount(),
@@ -191,7 +185,16 @@ int main(int argc, char** argv)
 	cv::namedWindow("Surface");
 	cv::namedWindow("Normal");
 
-	Matrix4 worldToCameraTransform;
+	Matrix4 mCameraMatrix;
+	Matrix4 mColorTransform = { 0.0f };
+	mColorTransform.M11 = mResolution.voxelsPerMeter / mResolution.voxelCountX;
+	mColorTransform.M22 = mResolution.voxelsPerMeter / mResolution.voxelCountY;
+	mColorTransform.M33 = mResolution.voxelsPerMeter / mResolution.voxelCountZ;
+	mColorTransform.M41 = 0.5f;
+	mColorTransform.M42 = 0.5f;
+	mColorTransform.M43 = 0.0f;
+	mColorTransform.M44 = 1.0f;
+
 	while (true)
 	{
 		// Get last frame
@@ -199,8 +202,8 @@ int main(int argc, char** argv)
 		if (pDepthFrameReader->AcquireLatestFrame(&pDepthFrame) == S_OK)
 		{
 			// read data
-			UINT	uBufferSize		= 0;
-			UINT16*	pDepthBuffer	= nullptr;
+			UINT	uBufferSize = 0;
+			UINT16*	pDepthBuffer = nullptr;
 			if (pDepthFrame->AccessUnderlyingBuffer(&uBufferSize, &pDepthBuffer)==S_OK)
 			{
 				// Convert to Kinect Fusion format
@@ -210,41 +213,25 @@ int main(int argc, char** argv)
 					if (pReconstruction->SmoothDepthFloatFrame(pFloatDepthFrame, pSmoothDepthFrame, NUI_FUSION_DEFAULT_SMOOTHING_KERNEL_WIDTH, NUI_FUSION_DEFAULT_SMOOTHING_DISTANCE_THRESHOLD) == S_OK)
 					{
 						// Reconstruction Process
-						pReconstruction->GetCurrentWorldToCameraTransform(&worldToCameraTransform);
-						if (pReconstruction->ProcessFrame(pSmoothDepthFrame, NUI_FUSION_DEFAULT_ALIGN_ITERATION_COUNT, NUI_FUSION_DEFAULT_INTEGRATION_WEIGHT, nullptr, &worldToCameraTransform) != S_OK)
+						pReconstruction->GetCurrentWorldToCameraTransform(&mCameraMatrix);
+						if (pReconstruction->ProcessFrame(pSmoothDepthFrame, NUI_FUSION_DEFAULT_ALIGN_ITERATION_COUNT, NUI_FUSION_DEFAULT_INTEGRATION_WEIGHT, nullptr, &mCameraMatrix) != S_OK)
 						{
-							static int errorCount = 0;
-							errorCount++;
-							if (errorCount >= 100)
-							{
-								errorCount = 0;
-								ResetReconstruction(pReconstruction);
-							}
+							cerr << "Can't process this frame" << endl;
 						}
 
 						// Calculate Point Cloud
-						if( pReconstruction->CalculatePointCloud(pPointCloudFrame, &worldToCameraTransform) != S_OK )
+						if (pReconstruction->CalculatePointCloud(pPointCloudFrame, &mCameraMatrix) != S_OK)
 						{
 							std::cerr << "Error : CalculatePointCloud" << std::endl;
 							return -1;
 						}
 
-						// Shading Point Clouid
-						Matrix4 worldToBGRTransform = { 0.0f };
-						worldToBGRTransform.M11 = mResolution.voxelsPerMeter / mResolution.voxelCountX;
-						worldToBGRTransform.M22 = mResolution.voxelsPerMeter / mResolution.voxelCountY;
-						worldToBGRTransform.M33 = mResolution.voxelsPerMeter / mResolution.voxelCountZ;
-						worldToBGRTransform.M41 = 0.5f;
-						worldToBGRTransform.M42 = 0.5f;
-						worldToBGRTransform.M43 = 0.0f;
-						worldToBGRTransform.M44 = 1.0f;
-
-						if( NuiFusionShadePointCloud(pPointCloudFrame, &worldToCameraTransform, &worldToBGRTransform, pSurfaceFrame, pNormalFrame) == S_OK )
+						// Shading Point Clouid 
+						if (NuiFusionShadePointCloud(pPointCloudFrame, &mCameraMatrix, &mColorTransform, pSurfaceFrame, pNormalFrame) == S_OK)
 						{
 							cv::Mat surfaceMat(iHeight, iWidth, CV_8UC4, pSurfaceFrame->pFrameBuffer->pBits);
 							cv::Mat normalMat(iHeight, iWidth, CV_8UC4, pNormalFrame->pFrameBuffer->pBits);
 
-							//cv::imshow("Depth", depthMat);
 							cv::imshow("Surface", surfaceMat);
 							cv::imshow("Normal", normalMat);
 						}
@@ -263,12 +250,13 @@ int main(int argc, char** argv)
 		}
 		else if (key == 'r')
 		{
-			ResetReconstruction(pReconstruction);
+			std::cout << "Reset Reconstruction" << std::endl;
+			pReconstruction->ResetReconstruction(nullptr, nullptr);
 		}
 		else if (key == 'o')
 		{
 			INuiFusionMesh* pMesh = nullptr;
-			if (pReconstruction->CalculateMesh(1.0, &pMesh) == S_OK)
+			if (pReconstruction->CalculateMesh(1, &pMesh) == S_OK)
 			{
 				OutputSTL(pMesh);
 				pMesh->Release();
