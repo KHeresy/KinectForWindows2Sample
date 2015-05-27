@@ -236,17 +236,10 @@ int main(int argc, char** argv)
 		return -1;
 	}
 
-	// Surface
-	NUI_FUSION_IMAGE_FRAME	*pSurfaceFrame = nullptr;
-	if (NuiFusionCreateImageFrame(NUI_FUSION_IMAGE_TYPE_COLOR, iImgWidth, iImgHeight, nullptr, &pSurfaceFrame) != S_OK)
+	// Color for Display
+	NUI_FUSION_IMAGE_FRAME	*pDisplayColorFrame = nullptr;
+	if (NuiFusionCreateImageFrame(NUI_FUSION_IMAGE_TYPE_COLOR, iImgWidth, iImgHeight, nullptr, &pDisplayColorFrame) != S_OK)
 	{
-		cerr << "Error : NuiFusionCreateImageFrame( COLOR )" << endl;
-		return -1;
-	}
-
-	// Normal
-	NUI_FUSION_IMAGE_FRAME	*pNormalFrame = nullptr;
-	if (NuiFusionCreateImageFrame(NUI_FUSION_IMAGE_TYPE_COLOR, iImgWidth, iImgHeight, nullptr, &pNormalFrame) != S_OK){
 		cerr << "Error : NuiFusionCreateImageFrame( COLOR )" << endl;
 		return -1;
 	}
@@ -255,8 +248,7 @@ int main(int argc, char** argv)
 	#pragma endregion
 
 	// Enter main loop
-	cv::namedWindow("Surface");
-	cv::namedWindow("Normal");
+	cv::namedWindow("Result");
 
 	Matrix4 mCameraMatrix;
 	Matrix4 mColorTransform = { 0.0f };
@@ -334,23 +326,16 @@ int main(int argc, char** argv)
 
 		// Reconstruction Process
 		pReconstruction->GetCurrentWorldToCameraTransform(&mCameraMatrix);
-		if (pReconstruction->ProcessFrame(pSmoothDepthFrame, pColorImageFrame, NUI_FUSION_DEFAULT_ALIGN_ITERATION_COUNT, NUI_FUSION_DEFAULT_INTEGRATION_WEIGHT, NUI_FUSION_DEFAULT_COLOR_INTEGRATION_OF_ALL_ANGLES, nullptr, &mCameraMatrix) != S_OK)
+		if (pReconstruction->ProcessFrame(pSmoothDepthFrame, pColorImageFrame, NUI_FUSION_DEFAULT_ALIGN_ITERATION_COUNT, NUI_FUSION_DEFAULT_INTEGRATION_WEIGHT, 1, nullptr, &mCameraMatrix) != S_OK)
 		{
 			cerr << "Can't process this frame" << endl;
 		}
 
 		// Calculate Point Cloud
-		if (pReconstruction->CalculatePointCloud(pPointCloudFrame, pColorImageFrame, &mCameraMatrix) == S_OK)
+		if (pReconstruction->CalculatePointCloud(pPointCloudFrame, pDisplayColorFrame, &mCameraMatrix) == S_OK)
 		{
-			// Shading Point Clouid
-			if (NuiFusionShadePointCloud(pPointCloudFrame, &mCameraMatrix, &mColorTransform, pSurfaceFrame, pNormalFrame) == S_OK)
-			{
-				cv::Mat surfaceMat(iDepthHeight, iDepthWidth, CV_8UC4, pSurfaceFrame->pFrameBuffer->pBits);
-				cv::Mat normalMat(iDepthHeight, iDepthWidth, CV_8UC4, pNormalFrame->pFrameBuffer->pBits);
-
-				cv::imshow("Surface", surfaceMat);
-				cv::imshow("Normal", normalMat);
-			}
+			cv::Mat surfaceMat(iImgHeight, iImgWidth, CV_8UC4, pDisplayColorFrame->pFrameBuffer->pBits);
+			cv::imshow("Result", surfaceMat);
 		}
 
 		int key = cv::waitKey(30);
@@ -382,8 +367,7 @@ int main(int argc, char** argv)
 	NuiFusionReleaseImageFrame(pFloatDepthFrame);
 	NuiFusionReleaseImageFrame(pSmoothDepthFrame);
 	NuiFusionReleaseImageFrame(pPointCloudFrame);
-	NuiFusionReleaseImageFrame(pSurfaceFrame);
-	NuiFusionReleaseImageFrame(pNormalFrame);
+	NuiFusionReleaseImageFrame(pDisplayColorFrame);
 
 	// release frame reader
 	pDepthFrameReader->Release();
