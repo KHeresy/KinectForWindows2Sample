@@ -41,7 +41,7 @@ bool OutputOBJ(INuiFusionColorMesh* pMesh)
 	for (UINT uIdx = 0; uIdx < uVertexNum; ++uIdx)
 	{
 		const Vector3	&rVertex = pVertex[uIdx];
-		OutFile << "v " << rVertex.x << " " << rVertex.y << " " << rVertex.z << " ";
+		OutFile << "v " << -rVertex.x << " " << rVertex.y << " " << rVertex.z << " ";
 		
 		const int& rColor = pColor[uIdx];
 		OutFile << float(rColor & 255) / 255.0f << " " << float((rColor >> 8) & 255) / 255.0f << " " << float(rColor >> 16 & 255) / 255.0f << "\n";
@@ -50,7 +50,7 @@ bool OutputOBJ(INuiFusionColorMesh* pMesh)
 	OutFile << "\n# Face index\n";
 	for (UINT idx = 0; idx < uIndexNum; idx += 3)
 	{
-		OutFile << "f " << pIndex[idx]+1 << " " << pIndex[idx + 1]+1 << " " << pIndex[idx+2]+1 << "\n";
+		OutFile << "f " << pIndex[idx + 2]+1 << " " << pIndex[idx + 1]+1 << " " << pIndex[idx]+1 << "\n";
 	}
 	OutFile.close();
 
