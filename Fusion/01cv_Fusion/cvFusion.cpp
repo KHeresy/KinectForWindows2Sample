@@ -39,11 +39,11 @@ bool OutputSTL(INuiFusionMesh* pMesh)
 		const Vector3	&rP1 = pVertex[idx],
 						&rP2 = pVertex[idx+1],
 						&rP3 = pVertex[idx+2];
-		OutFile << "  facet normal 0 0 0\n";
+		OutFile << "  facet normal 0 0 0\n"; // should compute face normal
 		OutFile << "    outer loop\n";
-		OutFile << "      vertex " << -rP1.x << " " << rP1.y << " " << rP1.z << "\n";
-		OutFile << "      vertex " << -rP2.x << " " << rP2.y << " " << rP2.z << "\n";
-		OutFile << "      vertex " << -rP3.x << " " << rP3.y << " " << rP3.z << "\n";
+		OutFile << "      vertex " << rP3.x << " " << rP3.y << " " << rP3.z << "\n";
+		OutFile << "      vertex " << rP1.x << " " << rP1.y << " " << rP1.z << "\n";
+		OutFile << "      vertex " << rP2.x << " " << rP2.y << " " << rP2.z << "\n";
 		OutFile << "    endloop" << "\n";
 		OutFile << "  endfacet" << "\n";
 	}
@@ -207,7 +207,7 @@ int main(int argc, char** argv)
 			if (pDepthFrame->AccessUnderlyingBuffer(&uBufferSize, &pDepthBuffer)==S_OK)
 			{
 				// Convert to Kinect Fusion format
-				if (pReconstruction->DepthToDepthFloatFrame(pDepthBuffer, uBufferSize * sizeof(UINT16), pFloatDepthFrame, NUI_FUSION_DEFAULT_MINIMUM_DEPTH, NUI_FUSION_DEFAULT_MAXIMUM_DEPTH, true) == S_OK)
+				if (pReconstruction->DepthToDepthFloatFrame(pDepthBuffer, uBufferSize * sizeof(UINT16), pFloatDepthFrame, NUI_FUSION_DEFAULT_MINIMUM_DEPTH, NUI_FUSION_DEFAULT_MAXIMUM_DEPTH, false) == S_OK)
 				{
 					// smoothing
 					if (pReconstruction->SmoothDepthFloatFrame(pFloatDepthFrame, pSmoothDepthFrame, NUI_FUSION_DEFAULT_SMOOTHING_KERNEL_WIDTH, NUI_FUSION_DEFAULT_SMOOTHING_DISTANCE_THRESHOLD) == S_OK)
