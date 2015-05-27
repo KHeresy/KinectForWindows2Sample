@@ -1,5 +1,5 @@
 // Created by Heresy @ 2015/05/20
-// Blog Page: 
+// Blog Page: https://kheresy.wordpress.com/2015/05/20/kinect-fusion-part-1/
 // This sample is used to use Kinect Fusion to scan the scene and output a STL file.
 
 // Standard Library

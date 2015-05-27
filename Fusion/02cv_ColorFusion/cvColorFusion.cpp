@@ -1,6 +1,6 @@
-// Created by Heresy @ 2015/02/25
-// Blog Page: 
-// This sample is used to read information of body joint nad draw with OpenCV.
+// Created by Heresy @ 2015/05/27
+// Blog Page: https://kheresy.wordpress.com/2015/05/27/kinect-fusion-part-2/
+// This sample is used to use Kinect Fusion to scan the scene with color and output a OBJ file.
 
 // Standard Library
 #include <iostream>
