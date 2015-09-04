@@ -1,6 +1,6 @@
 // Created by Heresy @ 2015/08/11
-// Blog Page: 
-// This sample is used to read the gesture databases from Visual Gesture Builder and detect gesture.
+// Blog Page: https://kheresy.wordpress.com/2015/09/04/vgb-cpp-api/
+// This sample is used to read the gesture databases from Visual Gesture Builder and detect gestures.
 
 // Standard Library
 #include <string>
@@ -15,7 +15,7 @@ using namespace std;
 int main(int argc, char** argv)
 {
 	#pragma region Sensor related code
-	// 1a. Get default Sensor
+	// Get default Sensor
 	cout << "Try to get default sensor" << endl;
 	IKinectSensor* pSensor = nullptr;
 	if (GetDefaultKinectSensor(&pSensor) != S_OK)
@@ -24,7 +24,7 @@ int main(int argc, char** argv)
 		return -1;
 	}
 
-	// 1b. Open sensor
+	// Open sensor
 	cout << "Try to open sensor" << endl;
 	if (pSensor->Open() != S_OK)
 	{
@@ -34,45 +34,42 @@ int main(int argc, char** argv)
 	#pragma endregion
 
 	#pragma region Body releated code
-	// 2a. Get frame source
+	// Get body frame source
 	cout << "Try to get body source" << endl;
-	IBodyFrameSource* pFrameSource = nullptr;
-	if (pSensor->get_BodyFrameSource(&pFrameSource) != S_OK)
+	IBodyFrameSource* pBodyFrameSource = nullptr;
+	if (pSensor->get_BodyFrameSource(&pBodyFrameSource) != S_OK)
 	{
 		cerr << "Can't get body frame source" << endl;
 		return -1;
 	}
 
-	// 2b. Get the number of body
+	// Get the number of body
 	INT32 iBodyCount = 0;
-	if (pFrameSource->get_BodyCount(&iBodyCount) != S_OK)
+	if (pBodyFrameSource->get_BodyCount(&iBodyCount) != S_OK)
 	{
 		cerr << "Can't get body count" << endl;
 		return -1;
 	}
 	cout << " > Can trace " << iBodyCount << " bodies" << endl;
+
+	// Allocate resource for bodies
 	IBody** aBody = new IBody*[iBodyCount];
 	for (int i = 0; i < iBodyCount; ++i)
 		aBody[i] = nullptr;
 
-	// 2c. get frame reader
+	// get body frame reader
 	cout << "Try to get body frame reader" << endl;
-	IBodyFrameReader* pFrameReader = nullptr;
-	if (pFrameSource->OpenReader(&pFrameReader) != S_OK)
+	IBodyFrameReader* pBodyFrameReader = nullptr;
+	if (pBodyFrameSource->OpenReader(&pBodyFrameReader) != S_OK)
 	{
 		cerr << "Can't get body frame reader" << endl;
 		return -1;
 	}
-
-	// 2d. release Frame source
-	cout << "Release frame source" << endl;
-	pFrameSource->Release();
-	pFrameSource = nullptr;
 	#pragma endregion
 
 	#pragma region Visual Gesture Builder Database
 	// Load gesture dataase from File
-	wstring sDatabaseFile = L"test.gbd";
+	wstring sDatabaseFile = L"test.gbd";	// Modify this file to load other file
 	IVisualGestureBuilderDatabase* pGestureDatabase = nullptr;
 	wcout << L"Try to load gesture database file " << sDatabaseFile << endl;
 	if (CreateVisualGestureBuilderDatabaseInstanceFromFile(sDatabaseFile.c_str(), &pGestureDatabase) != S_OK)
@@ -81,7 +78,7 @@ int main(int argc, char** argv)
 		return -1;
 	}
 
-	// Get how many gestures in database
+	// Get the number of gestures in database
 	UINT iGestureCount = 0;
 	cout << "Try to read gesture list" << endl;
 	if (pGestureDatabase->get_AvailableGesturesCount(&iGestureCount) != S_OK)
@@ -109,7 +106,7 @@ int main(int argc, char** argv)
 		GestureType mType;
 		const UINT uTextLength = 260; // magic number, if value smaller than 260, can't get name
 		wchar_t sName[uTextLength];
-		for (int i = 0; i < iGestureCount; ++i)
+		for (UINT i = 0; i < iGestureCount; ++i)
 		{
 			if (aGestureList[i]->get_GestureType(&mType) == S_OK)
 			{
@@ -126,7 +123,6 @@ int main(int argc, char** argv)
 	#pragma endregion
 
 	#pragma region Gesture frame related code
-
 	// create for each possible body
 	IVisualGestureBuilderFrameSource** aGestureSources = new IVisualGestureBuilderFrameSource*[iBodyCount];
 	IVisualGestureBuilderFrameReader** aGestureReaders = new IVisualGestureBuilderFrameReader*[iBodyCount];
@@ -162,13 +158,13 @@ int main(int argc, char** argv)
 	while (iStep < 100000)
 	{
 		// 4a. Get last frame
-		IBodyFrame* pFrame = nullptr;
-		if (pFrameReader->AcquireLatestFrame(&pFrame) == S_OK)
+		IBodyFrame* pBodyFrame = nullptr;
+		if (pBodyFrameReader->AcquireLatestFrame(&pBodyFrame) == S_OK)
 		{
 			++iStep;
 
 			// 4b. get Body data
-			if (pFrame->GetAndRefreshBodyData(iBodyCount, aBody) == S_OK)
+			if (pBodyFrame->GetAndRefreshBodyData(iBodyCount, aBody) == S_OK)
 			{
 				// 4c. for each body
 				for (int i = 0; i < iBodyCount; ++i)
@@ -179,14 +175,17 @@ int main(int argc, char** argv)
 					BOOLEAN bTracked = false;
 					if ((pBody->get_IsTracked(&bTracked) == S_OK) && bTracked)
 					{
+						// get tracking ID of body
 						UINT64 uTrackingId = 0;
 						if (pBody->get_TrackingId(&uTrackingId) == S_OK)
 						{
+							// get tracking id of gesture
 							UINT64 uGestureId = 0;
 							if (aGestureSources[i]->get_TrackingId(&uGestureId) == S_OK)
 							{
 								if (uGestureId != uTrackingId)
 								{
+									// assign traking ID if the value is changed
 									cout << "Gesture Source " << i << " start to track user " << uTrackingId << endl;
 									aGestureSources[i]->put_TrackingId(uTrackingId);
 								}
@@ -206,7 +205,7 @@ int main(int argc, char** argv)
 								wchar_t sName[uTextLength];
 
 								// for each gestures
-								for (int j = 0; j < iGestureCount; ++j)
+								for (UINT j = 0; j < iGestureCount; ++j)
 								{
 									// get gesture information
 									aGestureList[j]->get_GestureType(&mType);
@@ -218,10 +217,15 @@ int main(int argc, char** argv)
 										IDiscreteGestureResult* pGestureResult = nullptr;
 										if (pGestureFrame->get_DiscreteGestureResult(aGestureList[j], &pGestureResult) == S_OK)
 										{
+											// check if is detected
 											BOOLEAN bDetected = false;
 											if (pGestureResult->get_Detected(&bDetected) == S_OK && bDetected)
 											{
-												wcout << L"Detected Gesture " << sName << endl;
+												float fConfidence = 0.0f;
+												pGestureResult->get_Confidence(&fConfidence);
+
+												// output information
+												wcout << L"Detected Gesture " << sName << L" @" << fConfidence << endl;
 											}
 											pGestureResult->Release();
 										}
@@ -232,14 +236,18 @@ int main(int argc, char** argv)
 										IContinuousGestureResult* pGestureResult = nullptr;
 										if (pGestureFrame->get_ContinuousGestureResult(aGestureList[j], &pGestureResult) == S_OK)
 										{
+											// get progress
 											float fProgress = 0.0f;
 											if (pGestureResult->get_Progress(&fProgress) == S_OK)
 											{
 												if (fProgress > 0.5f)
+												{
+													// output information
 													wcout << L"Detected Gesture " << sName << L" " << fProgress << endl;
+												}
 											}
+											pGestureResult->Release();
 										}
-										pGestureResult->Release();
 									}
 								}
 							}
@@ -253,12 +261,23 @@ int main(int argc, char** argv)
 				cerr << "Can't read body data" << endl;
 			}
 
-			// 4e. release frame
-			pFrame->Release();
+			// release frame
+			pBodyFrame->Release();
 		}
 	}
 
-	// delete allocated data
+	#pragma region Resource release
+	// release gesture data
+	for (UINT i = 0; i < iGestureCount; ++i)
+		aGestureList[i]->Release();
+	delete[] aGestureList;
+
+	// release body data
+	for (int i = 0; i < iBodyCount; ++i)
+		aBody[i]->Release();
+	delete[] aBody;
+
+	// release gesture source and reader
 	for (int i = 0; i < iBodyCount; ++i)
 	{
 		aGestureReaders[i]->Release();
@@ -267,27 +286,17 @@ int main(int argc, char** argv)
 	delete [] aGestureReaders;
 	delete [] aGestureSources;
 
-	for (int i = 0; i < iGestureCount; ++i)
-		aGestureList[i]->Release();
-	delete[] aGestureList;
 
-	for (int i = 0; i < iBodyCount; ++i)
-		aBody[i]->Release();
-	delete[] aBody;
+	// release body frame source and reader
+	pBodyFrameReader->Release();
+	pBodyFrameSource->Release();
 
-	// 2e. release frame reader
-	cout << "Release frame reader" << endl;
-	pFrameReader->Release();
-	pFrameReader = nullptr;
-
-	// 1c. Close Sensor
-	cout << "close sensor" << endl;
+	// Close Sensor
 	pSensor->Close();
 
-	// 1d. Release Sensor
-	cout << "Release sensor" << endl;
+	// Release Sensor
 	pSensor->Release();
-	pSensor = nullptr;
+	#pragma endregion
 
 	return 0;
 }
