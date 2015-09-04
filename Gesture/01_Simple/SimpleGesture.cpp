@@ -96,31 +96,29 @@ int main(int argc, char** argv)
 	}
 	
 	// get the list of gestures
-	IGesture** pGestureList = new IGesture*[iGestureCount];
-	if (pGestureDatabase->get_AvailableGestures(iGestureCount, pGestureList) != S_OK)
+	IGesture** aGestureList = new IGesture*[iGestureCount];
+	if (pGestureDatabase->get_AvailableGestures(iGestureCount, aGestureList) != S_OK)
 	{
 		cerr << "Can't read the gesture list" << endl;
 		return -1;
 	}
-
-	// output the gesture list
-	cout << "There are " << iGestureCount << " gestures in the database: " << endl;
-	if (pGestureList != nullptr)
+	else
 	{
+		// output the gesture list
+		cout << "There are " << iGestureCount << " gestures in the database: " << endl;
 		GestureType mType;
 		const UINT uTextLength = 260; // magic number, if value smaller than 260, can't get name
 		wchar_t sName[uTextLength];
-
 		for (int i = 0; i < iGestureCount; ++i)
 		{
-			if (pGestureList[i]->get_GestureType(&mType) == S_OK)
+			if (aGestureList[i]->get_GestureType(&mType) == S_OK)
 			{
 				if (mType == GestureType_Discrete)
 					cout << "\t[D] ";
 				else if (mType == GestureType_Continuous)
 					cout << "\t[C] ";
 
-				if (pGestureList[i]->get_Name(uTextLength, sName) == S_OK)
+				if (aGestureList[i]->get_Name(uTextLength, sName) == S_OK)
 					wcout << sName << endl;
 			}
 		}
@@ -128,29 +126,30 @@ int main(int argc, char** argv)
 	#pragma endregion
 
 	#pragma region Gesture frame related code
+
 	// create for each possible body
-	IVisualGestureBuilderFrameSource** pGestureSources = new IVisualGestureBuilderFrameSource*[iBodyCount];
-	IVisualGestureBuilderFrameReader** pGestureReaders = new IVisualGestureBuilderFrameReader*[iBodyCount];
+	IVisualGestureBuilderFrameSource** aGestureSources = new IVisualGestureBuilderFrameSource*[iBodyCount];
+	IVisualGestureBuilderFrameReader** aGestureReaders = new IVisualGestureBuilderFrameReader*[iBodyCount];
 	for (int i = 0; i < iBodyCount; ++i)
 	{
 		// frame source
-		pGestureSources[i] = nullptr;
-		if (CreateVisualGestureBuilderFrameSource(pSensor, 0, &pGestureSources[i]) != S_OK)
+		aGestureSources[i] = nullptr;
+		if (CreateVisualGestureBuilderFrameSource(pSensor, 0, &aGestureSources[i]) != S_OK)
 		{
 			cerr << "Can't create IVisualGestureBuilderFrameSource" << endl;
 			return -1;
 		}
 
 		// set gestures
-		if (pGestureSources[i]->AddGestures(iGestureCount, pGestureList) == S_OK)
+		if (aGestureSources[i]->AddGestures(iGestureCount, aGestureList) != S_OK)
 		{
-			for (int iGesture = 0; iGesture < iGestureCount; ++iGesture)
-				pGestureSources[i]->SetIsEnabled(pGestureList[iGesture], true);
+			cerr << "Add gestures failed" << endl;
+			return -1;
 		}
 
 		// frame reader
-		pGestureReaders[i] = nullptr;
-		if (pGestureSources[i]->OpenReader(&pGestureReaders[i]) != S_OK)
+		aGestureReaders[i] = nullptr;
+		if (aGestureSources[i]->OpenReader(&aGestureReaders[i]) != S_OK)
 		{
 			cerr << "Can't open IVisualGestureBuilderFrameReader" << endl;
 			return -1;
@@ -171,8 +170,6 @@ int main(int argc, char** argv)
 			// 4b. get Body data
 			if (pFrame->GetAndRefreshBodyData(iBodyCount, aBody) == S_OK)
 			{
-				int iTrackedBodyCount = 0;
-
 				// 4c. for each body
 				for (int i = 0; i < iBodyCount; ++i)
 				{
@@ -182,56 +179,64 @@ int main(int argc, char** argv)
 					BOOLEAN bTracked = false;
 					if ((pBody->get_IsTracked(&bTracked) == S_OK) && bTracked)
 					{
-						++iTrackedBodyCount;
-						//cout << "User " << i << " is under tracking" << endl;
-
 						UINT64 uTrackingId = 0;
 						if (pBody->get_TrackingId(&uTrackingId) == S_OK)
 						{
 							UINT64 uGestureId = 0;
-							if (pGestureSources[i]->get_TrackingId(&uGestureId) == S_OK)
+							if (aGestureSources[i]->get_TrackingId(&uGestureId) == S_OK)
 							{
 								if (uGestureId != uTrackingId)
 								{
-									pGestureSources[i]->put_TrackingId(uTrackingId);
 									cout << "Gesture Source " << i << " start to track user " << uTrackingId << endl;
+									aGestureSources[i]->put_TrackingId(uTrackingId);
 								}
 							}
 						}
 
+						// Get gesture frame for this body
 						IVisualGestureBuilderFrame* pGestureFrame = nullptr;
-						if (pGestureReaders[i]->CalculateAndAcquireLatestFrame(&pGestureFrame) == S_OK)
+						if (aGestureReaders[i]->CalculateAndAcquireLatestFrame(&pGestureFrame) == S_OK)
 						{
+							// check if the gesture of this body is tracked
 							BOOLEAN bGestureTracked = false;
 							if (pGestureFrame->get_IsTrackingIdValid(&bGestureTracked) == S_OK && bGestureTracked)
 							{
 								GestureType mType;
+								const UINT uTextLength = 260;
+								wchar_t sName[uTextLength];
+
+								// for each gestures
 								for (int j = 0; j < iGestureCount; ++j)
 								{
-									pGestureList[j]->get_GestureType(&mType);
+									// get gesture information
+									aGestureList[j]->get_GestureType(&mType);
+									aGestureList[j]->get_Name(uTextLength, sName);
+
 									if (mType == GestureType_Discrete)
 									{
+										// get gesture result
 										IDiscreteGestureResult* pGestureResult = nullptr;
-										if (pGestureFrame->get_DiscreteGestureResult(pGestureList[j], &pGestureResult) == S_OK)
+										if (pGestureFrame->get_DiscreteGestureResult(aGestureList[j], &pGestureResult) == S_OK)
 										{
 											BOOLEAN bDetected = false;
 											if (pGestureResult->get_Detected(&bDetected) == S_OK && bDetected)
 											{
-												cout << "Detected Gesture" << endl;
+												wcout << L"Detected Gesture " << sName << endl;
 											}
 											pGestureResult->Release();
 										}
 									}
 									else if (mType == GestureType_Continuous)
 									{
+										// get gesture result
 										IContinuousGestureResult* pGestureResult = nullptr;
-										if (pGestureFrame->get_ContinuousGestureResult(pGestureList[j], &pGestureResult) == S_OK)
+										if (pGestureFrame->get_ContinuousGestureResult(aGestureList[j], &pGestureResult) == S_OK)
 										{
 											float fProgress = 0.0f;
 											if (pGestureResult->get_Progress(&fProgress) == S_OK)
 											{
-												if (fProgress > 0)
-													cout << "Progress: " << fProgress << endl;
+												if (fProgress > 0.5f)
+													wcout << L"Detected Gesture " << sName << L" " << fProgress << endl;
 											}
 										}
 										pGestureResult->Release();
@@ -242,9 +247,6 @@ int main(int argc, char** argv)
 						}
 					}
 				}
-
-				//if (iTrackedBodyCount > 0)
-					cout << "Step " << iStep << " Total " << iTrackedBodyCount << " bodies in this time\n" << endl;
 			}
 			else
 			{
@@ -259,15 +261,15 @@ int main(int argc, char** argv)
 	// delete allocated data
 	for (int i = 0; i < iBodyCount; ++i)
 	{
-		pGestureReaders[i]->Release();
-		pGestureSources[i]->Release();
+		aGestureReaders[i]->Release();
+		aGestureSources[i]->Release();
 	}
-	delete [] pGestureReaders;
-	delete [] pGestureSources;
+	delete [] aGestureReaders;
+	delete [] aGestureSources;
 
 	for (int i = 0; i < iGestureCount; ++i)
-		pGestureList[i]->Release();
-	delete[] pGestureList;
+		aGestureList[i]->Release();
+	delete[] aGestureList;
 
 	for (int i = 0; i < iBodyCount; ++i)
 		aBody[i]->Release();
